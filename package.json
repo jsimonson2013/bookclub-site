@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/jsimonson2013/bookclub-site#readme",
   "devDependencies": {
-    "express": "^4.15.4"
+    "express": "^4.15.4",
+    "mysql": "^2.14.1"
   }
 }
