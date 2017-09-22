@@ -1,8 +1,16 @@
 const express = require('express')
 const app = express()
 
+const user = "user"
+const pass = "pass"
+
 app.get('/', (req, res) => {
-  res.sendFile('html/bookclub.html', {root: __dirname})
+  if (req.query.user === user && req.query.pass) {
+    res.sendFile('html/bookclub.html', {root: __dirname})
+  }
+  else {
+    res.sendFile('html/login.html', {root: __dirname})
+  }
 })
 
 app.listen(3000, () => {
