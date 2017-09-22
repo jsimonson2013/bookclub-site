@@ -1,0 +1,22 @@
+{
+  "name": "club-site",
+  "version": "1.0.0",
+  "description": "Book Club Web Site",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsimonson2013/bookclub-site.git"
+  },
+  "author": "Jacob Simonson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jsimonson2013/bookclub-site/issues"
+  },
+  "homepage": "https://github.com/jsimonson2013/bookclub-site#readme",
+  "devDependencies": {
+    "express": "^4.15.4"
+  }
+}
