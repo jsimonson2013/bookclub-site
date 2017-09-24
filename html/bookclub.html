@@ -3,22 +3,26 @@
   <title>Roomies' Book Club</title>
   <script>
 
+    const POST_ID = 0
+
     submitPost = () => {
       const FEED = document.getElementById('feed')
       const POST = document.getElementById('post')
 
-      const POST_ID = 0
-      const VOTES = 0
-
       FEED.insertAdjacentHTML('beforeend', `
         <div id="${POST_ID}">
-          <button style="display: inline;">^</button>
-          <h3 style="display: inline; background-color: lightgrey; padding: 5px;">${VOTES}</h3>
+          <button style="display: inline;" onclick="vote()">^</button>
+          <h3 id="vote-${POST_ID}" style="display: inline; background-color: lightgrey; padding: 5px;">0</h3>
           <p style="display: inline;">Submission for ${POST.elements["title"].value} by ${POST.elements["author"].value}.</p>
         </div>
       `)
+    }
 
-     
+    vote = () => {
+      const VOTE_COUNT = document.getElementById(`vote-${POST_ID}`)
+
+      const VOTES = Number(VOTE_COUNT.innerHTML)
+      VOTE_COUNT.innerHTML = VOTES + 1
     }
 
   </script>
