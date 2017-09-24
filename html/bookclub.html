@@ -1,13 +1,42 @@
 <html>
 <head>
   <title>Roomies' Book Club</title>
+  <script>
+
+    submitPost = () => {
+      const FEED = document.getElementById('feed')
+      const POST = document.getElementById('post')
+
+      const POST_ID = 0
+      const VOTES = 0
+
+      FEED.insertAdjacentHTML('beforeend', `
+        <div id="${POST_ID}">
+          <button style="display: inline;">^</button>
+          <h3 style="display: inline; background-color: lightgrey; padding: 5px;">${VOTES}</h3>
+          <p style="display: inline;">Submission for ${POST.elements["title"].value} by ${POST.elements["author"].value}.</p>
+        </div>
+      `)
+
+     
+    }
+
+  </script>
 </head>
 <body>
   <h1>Welcome to the book club site!</h1>
   <p>This will be the location for all information about the bookclub, like dates and times, books, meeting information, etc. More information will be posted once logistics have been worked out. Contact jsimonson2013@gmail.com if you have any questions.</p>
+  <h1>Announcements</h1>
+    <p>The first book we will be reading is <a href="https://www.amazon.com/Brave-New-World-Aldous-Huxley/dp/0060850523/ref=sr_1_1?ie=UTF8&qid=1506169832&sr=8-1&keywords=brave+new+world">Brave New World by Aldous Huxley</a>. The first reading section is from the beginning to page 57 (or the start of Part 1 and Chapter 4). We will be meeting virtually to discuss this October 4th at 7:30 CDT.</p>
   <h1>Calender Goes Here</h1>
   <iframe src="https://calendar.google.com/calendar/embed?src=8p3v2r56ecvp54ih4dn4ki06f0%40group.calendar.google.com&ctz=America/Los_Angeles" style="border: 0" width="75%" height="50%" frameborder="0" scrolling="no"></iframe>
   <h1>Book Submission Feed Here</h1>
-  <h1>Upcoming Events Here</h1>
+  <div id="feed" width="75%" height="50%" style="overflow: auto;">
+  </div>
+  <form id="post">
+    <input type="Text" name="title" value="Book Title...">
+    <input type="Text" name="author" value="Author...">
+    <input type="Button" name="submit" value="Submit" onclick="submitPost()">
+  </form>
 </body>
 </html>
