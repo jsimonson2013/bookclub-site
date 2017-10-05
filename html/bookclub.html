@@ -6,9 +6,7 @@
     window.onload = () => {
       fetch('http://jacobsimonson.me:3000/submissions', {
         method: 'GET',
-        headers: '',
-        mode: 'cors',
-        cache: 'default'
+        protocol: 'http:'
       })
       .then(submissions => {
         console.log(submissions)
