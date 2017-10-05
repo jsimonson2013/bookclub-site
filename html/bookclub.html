@@ -3,6 +3,18 @@
   <title>Roomies' Book Club</title>
   <script>
 
+    document.onload(
+      fetch('/submissions', {
+        method: 'GET',
+        headers: '',
+        mode: 'cors',
+        cache: 'default'
+      })
+      .then(submissions => {
+        console.log(submissions)
+      })
+    )
+
     const POST_ID = 0
 
     submitPost = () => {
