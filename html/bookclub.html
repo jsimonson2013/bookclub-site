@@ -5,9 +5,8 @@
 
     window.onload = () => {
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
-      .then(submissions => {
-        console.log(submissions.body)
-      })
+      .then(response => { return response.json() })
+      .then(posts => { console.log(posts) })
     }
 
     const POST_ID = 0
