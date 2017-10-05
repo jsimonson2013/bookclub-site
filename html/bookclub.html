@@ -6,7 +6,7 @@
     window.onload = () => {
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
       .then(submissions => {
-        console.log(submissions)
+        console.log(submissions.body)
       })
     }
 
