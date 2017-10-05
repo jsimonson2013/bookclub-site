@@ -3,7 +3,7 @@
   <title>Roomies' Book Club</title>
   <script>
 
-    window.onload(
+    window.onload = () => {
       fetch('/submissions', {
         method: 'GET',
         headers: '',
@@ -13,7 +13,7 @@
       .then(submissions => {
         console.log(submissions)
       })
-    )
+    }
 
     const POST_ID = 0
 
