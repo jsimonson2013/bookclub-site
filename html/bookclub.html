@@ -5,14 +5,21 @@
 
     window.onload = () => {
       const postArray = []
+      const FEED = document.getElementById('feed')
 
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
       .then(response => { return response.json() })
       .then(posts => {
         for post in posts {
-          postArray.push(post)
+          
+          FEED.insertAdjacentHTML('afterbegin',
+            `<div id="${post.id}">
+              <button style="display: inline;" onclick="vote()">^</button>
+              <h3 id="vote-${post.id}" style="display: inline; background-color: lightgrey; padding: 5px;">0</h3>
+              <p style="display: inline;">Submission for ${post.title} by ${post.author}.</p>
+            </div>
+          `)
         }
-        console.log(postArray)
       })
     }
 
