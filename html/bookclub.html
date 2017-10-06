@@ -4,9 +4,16 @@
   <script>
 
     window.onload = () => {
+      const postArray = []
+
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
       .then(response => { return response.json() })
-      .then(posts => { console.log(posts) })
+      .then(posts => {
+        for post in posts {
+          postArray.push(post)
+        }
+        console.log(postArray)
+      })
     }
 
     const POST_ID = 0
