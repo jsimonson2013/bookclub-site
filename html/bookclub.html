@@ -10,8 +10,8 @@
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
       .then(response => { return response.json() })
       .then(posts => {
-        for post in posts {
-          
+        for (post of posts) {
+
           FEED.insertAdjacentHTML('afterbegin',
             `<div id="${post.id}">
               <button style="display: inline;" onclick="vote()">^</button>
