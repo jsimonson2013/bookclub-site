@@ -11,11 +11,12 @@
       .then(response => { return response.json() })
       .then(posts => {
         for (post of posts) {
+          let votes = post.votes.split(',')
 
           FEED.insertAdjacentHTML('afterbegin',
             `<div id="${post.id}">
               <button style="display: inline;" onclick="vote()">^</button>
-              <h3 id="vote-${post.id}" style="display: inline; background-color: lightgrey; padding: 5px;">0</h3>
+              <h3 id="vote-${post.id}" style="display: inline; background-color: lightgrey; padding: 5px;">${votes.length}</h3>
               <p style="display: inline;">Submission for ${post.title} by ${post.author}.</p>
             </div>
           `)
