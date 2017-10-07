@@ -11,7 +11,10 @@
       .then(response => { return response.json() })
       .then(posts => {
         for (post of posts) {
-          let votes = post.votes.split(',')
+          let votes = ''
+
+          if(post.votes)
+            votes = post.votes.split(',')
 
           feed.insertAdjacentHTML('afterbegin',
             `<div id="${post.id}">
