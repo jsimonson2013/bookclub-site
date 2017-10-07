@@ -6,10 +6,13 @@
     window.onload = () => {
       const postArray = []
       const feed = document.getElementById('feed')
+      let POST_ID = 0
 
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
       .then(response => { return response.json() })
       .then(posts => {
+        POST_ID = posts.length + 1
+
         for (post of posts) {
           let votes = ''
 
@@ -26,8 +29,6 @@
         }
       })
     }
-
-    let POST_ID = 0
 
     submitPost = () => {
       const feed = document.getElementById('feed')
