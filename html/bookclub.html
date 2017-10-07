@@ -2,11 +2,11 @@
 <head>
   <title>Roomies' Book Club</title>
   <script>
+    let POST_ID = 0
 
     window.onload = () => {
       const postArray = []
       const feed = document.getElementById('feed')
-      let POST_ID = 0
 
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
       .then(response => { return response.json() })
