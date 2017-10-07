@@ -5,7 +5,7 @@
 
     window.onload = () => {
       const postArray = []
-      const FEED = document.getElementById('feed')
+      const feed = document.getElementById('feed')
 
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
       .then(response => { return response.json() })
@@ -13,7 +13,7 @@
         for (post of posts) {
           let votes = post.votes.split(',')
 
-          FEED.insertAdjacentHTML('afterbegin',
+          feed.insertAdjacentHTML('afterbegin',
             `<div id="${post.id}">
               <button style="display: inline;" onclick="vote()">^</button>
               <h3 id="vote-${post.id}" style="display: inline; background-color: lightgrey; padding: 5px;">${votes.length}</h3>
@@ -24,19 +24,31 @@
       })
     }
 
-    const POST_ID = 0
+    let POST_ID = 0
 
     submitPost = () => {
-      const FEED = document.getElementById('feed')
-      const POST = document.getElementById('post')
+      const feed = document.getElementById('feed')
+      const post = document.getElementById('post')
 
-      FEED.insertAdjacentHTML('beforeend', `
+      const title = post.elements["title"].value
+      const author = feed.element["author"].value
+
+      feed.insertAdjacentHTML('beforeend', `
         <div id="${POST_ID}">
           <button style="display: inline;" onclick="vote()">^</button>
           <h3 id="vote-${POST_ID}" style="display: inline; background-color: lightgrey; padding: 5px;">0</h3>
-          <p style="display: inline;">Submission for ${POST.elements["title"].value} by ${POST.elements["author"].value}.</p>
+          <p style="display: inline;">Submission for ${title} by ${author}.</p>
         </div>
       `)
+
+      const input = `${POST_ID},${title},${author}`
+
+      fetch("/login", {
+        method: "POST",
+        body: input
+      });
+
+      POST_ID += 1
     }
 
     vote = () => {
