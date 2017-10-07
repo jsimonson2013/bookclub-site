@@ -43,10 +43,15 @@
 
       const input = `${POST_ID},${title},${author}`
 
-      fetch("http://jacobsimonson.me:3000/submissions", {
-        method: "POST",
-        body: input
-      });
+      var request = new Request('http://jacobsimonson.me:3000/submissions', {
+      	method: 'POST',
+        body: input,
+      	headers: new Headers({
+      		'Content-Type': 'text/plain'
+      	})
+      })
+
+      fetch(request)
 
       POST_ID += 1
     }
