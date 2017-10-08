@@ -3,10 +3,19 @@
   <title>Roomies' Book Club</title>
   <script>
     let POST_ID = 0
+    let USER_ID = 0
+
     const postArray = []
 
     window.onload = () => {
       const feed = document.getElementById('feed')
+      const user = window.location.search.substring(1).split('&')[0].substring(5)
+
+      fetch('http://jacobsimonson.me:3000/user', {method: 'GET'})
+      .then(response => { return response.json() })
+      .then(user => {
+        console.log(`User ID: ${user.id}`)
+      })
 
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
       .then(response => { return response.json() })
@@ -66,10 +75,9 @@
     }
 
     vote = id => {
-      console.log(id)
-
       for (post of postArray) {
-        console.log(`ID: ${post[0]}, VOTES: ${post[3]}`)
+        if (id === post[0])
+          console.log(`Title: ${post[1]}, Author: ${post[2]}, Votes: ${post[3]}`)
       }
 
       const VOTE_COUNT = document.getElementById(`vote-${POST_ID}`)
