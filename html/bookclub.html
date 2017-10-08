@@ -24,7 +24,7 @@
 
           feed.insertAdjacentHTML('afterbegin',
             `<div id="${post.id}">
-              <button style="display: inline;" onclick="vote()">^</button>
+              <button style="display: inline;" onclick="vote(${post.id})">^</button>
               <h3 id="vote-${post.id}" style="display: inline; background-color: lightgrey; padding: 5px;">${votes.length}</h3>
               <p style="display: inline;">Submission for ${post.title} by ${post.author}.</p>
             </div>
@@ -65,7 +65,13 @@
       POST_ID += 1
     }
 
-    vote = () => {
+    vote = id => {
+      console.log(id)
+
+      for (post of postArray) {
+        console.log(`ID: ${post[0]}, VOTES: ${post[3]}`)
+      }
+
       const VOTE_COUNT = document.getElementById(`vote-${POST_ID}`)
 
       const VOTES = Number(VOTE_COUNT.innerHTML)
