@@ -3,9 +3,9 @@
   <title>Roomies' Book Club</title>
   <script>
     let POST_ID = 0
+    const postArray = []
 
     window.onload = () => {
-      const postArray = []
       const feed = document.getElementById('feed')
 
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
@@ -14,7 +14,10 @@
         POST_ID = posts.length + 1
 
         for (post of posts) {
-          let votes = ''
+          let votes = []
+
+          const title = post.title
+          const author = post.author
 
           if(post.votes)
             votes = post.votes.split(',')
@@ -26,6 +29,8 @@
               <p style="display: inline;">Submission for ${post.title} by ${post.author}.</p>
             </div>
           `)
+
+          postArray.push([POST_ID, title, author, votes.length])
         }
       })
     }
@@ -61,12 +66,10 @@
     }
 
     vote = () => {
-      /*
       const VOTE_COUNT = document.getElementById(`vote-${POST_ID}`)
 
       const VOTES = Number(VOTE_COUNT.innerHTML)
       VOTE_COUNT.innerHTML = VOTES + 1
-      */
     }
 
   </script>
