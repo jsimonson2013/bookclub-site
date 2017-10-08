@@ -92,7 +92,7 @@
       const VOTES = Number(VOTE_COUNT.innerHTML)
       VOTE_COUNT.innerHTML = VOTES + 1
 
-      const input = `${USER_ID}`
+      const input = `${USER_ID},${id}`
 
       var request = new Request('http://jacobsimonson.me:3000/users', {
       	method: 'POST',
