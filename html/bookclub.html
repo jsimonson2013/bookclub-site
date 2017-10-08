@@ -9,12 +9,15 @@
 
     window.onload = () => {
       const feed = document.getElementById('feed')
-      const user = window.location.search.substring(1).split('&')[0].substring(5)
+      const user_name = window.location.search.substring(1).split('&')[0].substring(5)
 
-      fetch('http://jacobsimonson.me:3000/user', {method: 'GET'})
+      fetch('http://jacobsimonson.me:3000/users', {method: 'GET'})
       .then(response => { return response.json() })
-      .then(user => {
-        console.log(`User ID: ${user.id}`)
+      .then(users => {
+        for (user of users) {
+          if (user_name === user.username)
+            USER_ID = user.id
+        }
       })
 
       fetch('http://jacobsimonson.me:3000/submissions', { method: 'GET' })
