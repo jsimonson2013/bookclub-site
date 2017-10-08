@@ -91,6 +91,18 @@
       const VOTE_COUNT = document.getElementById(`vote-${id}`)
       const VOTES = Number(VOTE_COUNT.innerHTML)
       VOTE_COUNT.innerHTML = VOTES + 1
+
+      const input = `${USER_ID}`
+
+      var request = new Request('http://jacobsimonson.me:3000/users', {
+      	method: 'POST',
+        body: input,
+      	headers: new Headers({
+      		'Content-Type': 'text/plain'
+      	})
+      })
+
+      fetch(request)
     }
 
   </script>
