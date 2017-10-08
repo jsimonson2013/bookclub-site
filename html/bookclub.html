@@ -6,6 +6,7 @@
     let USER_ID = 0
 
     const postArray = []
+    const sessionVotes = []
 
     window.onload = () => {
       const feed = document.getElementById('feed')
@@ -85,14 +86,16 @@
           voteArr = post[3]
       }
 
-      if(voteArr.includes(USER_ID.toString()))
+      if(voteArr.includes(USER_ID.toString()) || sessionVotes.includes(id))
         return
+
+      sessionVotes.push(id)
 
       const VOTE_COUNT = document.getElementById(`vote-${id}`)
       const VOTES = Number(VOTE_COUNT.innerHTML)
       VOTE_COUNT.innerHTML = VOTES + 1
 
-      const input = `${USER_ID},${id}`
+      const input = `${id},${USER_ID}`
 
       var request = new Request('http://jacobsimonson.me:3000/users', {
       	method: 'POST',
