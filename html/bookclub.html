@@ -42,7 +42,7 @@
             </div>
           `)
 
-          postArray.push([POST_ID, title, author, votes.length])
+          postArray.push([post.id, title, author, votes])
         }
       })
     }
@@ -78,17 +78,17 @@
     }
 
     vote = id => {
-      let voteStr = ''
+      let voteArr = ''
 
       for (post of postArray) {
         if (id === post[0])
-          voteArr = post[3].split(',')
+          voteArr = post[3]
       }
 
-      if(voteArr.includes(USER_ID))
+      if(voteArr.includes(USER_ID.toString()))
         return
 
-      const VOTE_COUNT = document.getElementById(`vote-${POST_ID}`)
+      const VOTE_COUNT = document.getElementById(`vote-${id}`)
       const VOTES = Number(VOTE_COUNT.innerHTML)
       VOTE_COUNT.innerHTML = VOTES + 1
     }
