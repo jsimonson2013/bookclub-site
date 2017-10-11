@@ -55,6 +55,13 @@
       const title = post.elements["title"].value
       const author = post.elements["author"].value
 
+      var pattern = new RegExp(/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/)
+
+      if (pattern.test(title) || pattern.test(author)){
+        alert('Please use only letters and numbers in your submission.')
+        return
+      }
+
       feed.insertAdjacentHTML('beforeend', `
         <div id="${POST_ID}">
           <button style="display: inline;" onclick="vote()">^</button>
