@@ -1,3 +1,4 @@
-private.js
-
 node_modules/
+
+# Stupid powershell vim files
+*~

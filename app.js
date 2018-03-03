@@ -2,6 +2,13 @@ const express = require('express')
 const app = express()
 const mysql = require('mysql')
 
+const connection = mysql.createConnection({
+  host: 'jacobsimonson.me',
+  user: process.argv[2],
+  password: process.argv[3],
+  database: 'BOOKCLUB'
+})
+
 app.get('/', (req, res) => {
 
   connection.query("select * from users WHERE user='" + req.query.user + "';", function (err, rows, fields) {
