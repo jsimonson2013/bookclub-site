@@ -3,10 +3,10 @@ const app = express()
 const mysql = require('mysql')
 
 const connection = mysql.createConnection({
-  host: 'jacobsimonson.me',
+  host: 'localhost',
   user: process.argv[2],
   password: process.argv[3],
-  database: 'BOOKCLUB'
+  database: process.argv[4]
 })
 
 app.get('/', (req, res) => {

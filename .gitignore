@@ -1,4 +1,5 @@
 node_modules/
+db.txt
 
 # Stupid powershell vim files
 *~
