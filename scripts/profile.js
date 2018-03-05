@@ -1,7 +1,7 @@
 const app = new Vue({
-	el: '#feed-list',
+	el: '#profile',
 	data: {
-		content: 'Hello, World!'
+		content: "Hello, World!"
 	},
 	methods: {
 	}
