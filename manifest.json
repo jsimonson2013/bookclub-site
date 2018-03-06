@@ -1,0 +1,13 @@
+{
+  "name": "FriendGroup",
+  "short_name": "FG",
+  "start_url": "./login.html",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "",
+  "icons": [{
+    "src": "icons/icon.png",
+    "sizes": "48x48",
+    "type": "image/png"
+  }]
+}
