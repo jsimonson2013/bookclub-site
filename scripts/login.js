@@ -6,7 +6,7 @@ const app = new Vue({
 	},
 	methods: {
 		loginUsingInput: () => {
-			console.log(app.user, app.pass)
+			fetch(`https://jacobsimonson.me:3000/?user=${app.user}&pass=${app.pass}`)
 		}
 	}
 })
