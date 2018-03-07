@@ -9,14 +9,14 @@ const connection = mysql.createConnection({
   database: process.argv[4]
 })
 
-app.use('/', express.static(__dirname))
+app.use('/scripts', express.static('scripts'))
 
 app.listen(3000, () => {
   console.log('App listening on port 3000!')
 })
 
 app.get('/', (req, res) => {
-  connection.query("select * from users WHERE user='" + req.query.user + "';", function (err, rows, fields) {
+  connection.query("select * from users WHERE username='" + req.query.user + "';", function (err, rows, fields) {
     if (err) throw err
 
     if(rows.length < 1) {
@@ -25,10 +25,10 @@ app.get('/', (req, res) => {
     }
 
     if (rows[0].pass == req.query.pass) {
-      res.sendFile('html/bookclub.html', {root: __dirname})
+      res.sendFile('html/feed-template.html', {root: __dirname})
     }
     else{
-      res.sendFile('html/login.html', {root: __dirname})
+      res.sendFile('html/login-template.html', {root: __dirname})
     }
   })
 })
