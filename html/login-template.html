@@ -1,23 +1,17 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
 <title>FriendGroup Login</title>
 </head>
 <body>
-<div id="wrapper">
 <h1 width="90%">Enter Username and Password</h1>
-<div id="login">
-<form>
+<form action="http://jacobsimonson.me:3000/login/">
     	Username<br>
-	<input type="text" v-model="user" placeholder="Enter Username..."><br>
+	<input type="text" name="user" placeholder="Enter Username..."><br>
     	Password<br>
-    	<input type="text" v-model="pass" placeholder="Enter Password..."><br>
+    	<input type="text" name="pass" placeholder="Enter Password..."><br>
+        <input type="submit" value="Submit"><br>
 </form>
-<button id="button" @click="loginUsingInput">Submit</button><br>
 <a href="">Click here to request sign up.</a>
-</div>
-</div>
-<script src="../scripts/login.js"></script>
 </body>
 </html>

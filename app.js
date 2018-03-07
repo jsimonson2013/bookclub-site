@@ -16,6 +16,10 @@ app.listen(3000, () => {
 })
 
 app.get('/', (req, res) => {
+  res.sendFile('html/login-template.html', {root: __dirname})
+})
+
+app.get('/login', (req, res) => {
   connection.query("select * from users WHERE username='" + req.query.user + "';", function (err, rows, fields) {
     if (err) throw err
 
@@ -23,8 +27,8 @@ app.get('/', (req, res) => {
      res.sendFile('html/login-template.html', {root: __dirname})
      return
     }
-
-    if (rows[0].pass == req.query.pass) {
+    
+    if (rows[0].password == req.query.pass) {
       res.sendFile('html/feed-template.html', {root: __dirname})
     }
     else{
@@ -34,7 +38,6 @@ app.get('/', (req, res) => {
 })
 
 app.get('/users', (req, res) => {
-
   connection.query("select * from users;", function(err, rows, fields) {
     if (err) throw err
 
