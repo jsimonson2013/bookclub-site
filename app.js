@@ -9,13 +9,18 @@ const connection = mysql.createConnection({
   database: process.argv[4]
 })
 
-app.get('/', (req, res) => {
+app.use('/', express.static(__dirname))
 
+app.listen(3000, () => {
+  console.log('App listening on port 3000!')
+})
+
+app.get('/', (req, res) => {
   connection.query("select * from users WHERE user='" + req.query.user + "';", function (err, rows, fields) {
     if (err) throw err
 
     if(rows.length < 1) {
-     res.sendFile('html/login.html', {root: __dirname})
+     res.sendFile('html/login-template.html', {root: __dirname})
      return
     }
 
@@ -26,7 +31,6 @@ app.get('/', (req, res) => {
       res.sendFile('html/login.html', {root: __dirname})
     }
   })
-
 })
 
 app.get('/users', (req, res) => {
@@ -54,10 +58,6 @@ app.get('/submissions', (req, res) => {
 
     res.json(rows)
   })
-})
-
-app.listen(3000, () => {
-  console.log('App listening on port 3000!')
 })
 
 app.post('/submissions', (req, res) => {
