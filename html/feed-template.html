@@ -1,4 +1,4 @@
-<html>
+<html style="background-color: #ffffe6">
 <head>
 <meta charset="utf-8"/>
 <title>FriendGroup</title>
@@ -6,9 +6,15 @@
 <head>
 <body>
 <div  id="wrapper">
-<ul id="feed-list">
-	<li v-for="item in content">{{ item }}</li>
-<ul>
+<div id="banner">
+  <h1>Group title</h1>
+</div>
+<div id="feed-list">
+<div v-for="post in posts" v-if="post.content" style="background-color: lightgray; border: 2px solid; padding: 5px; margin: 1px;">
+  <h3>{{ post.content }}</h3>
+  <p>Posted by {{ post.author }} on {{ post.create_date }}</p>
+</div>
+</div>
 </div>
 <script src="../scripts/feed.js"></script>
 </body>
