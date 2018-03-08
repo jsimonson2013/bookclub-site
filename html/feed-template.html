@@ -7,7 +7,7 @@
 <body>
 <div  id="wrapper">
 <ul id="feed-list">
-	<li>{{ content }}</li>
+	<li v-for="item in content">{{ item }}</li>
 <ul>
 </div>
 <script src="../scripts/feed.js"></script>

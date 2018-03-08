@@ -50,7 +50,7 @@ app.get('/users', (req, res) => {
 })
 
 
-app.get('/submissions', (req, res) => {
+app.get('/feed', (req, res) => {
 
   connection.query("select * from posts;", function(err, rows, fields) {
     if (err) throw err
