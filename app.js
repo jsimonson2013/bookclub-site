@@ -10,6 +10,7 @@ const connection = mysql.createConnection({
 })
 
 app.use('/scripts', express.static('scripts'))
+app.use('/html', express.static('html'))
 
 app.listen(3000, () => {
   console.log('App listening on port 3000!')
@@ -62,6 +63,20 @@ app.get('/feed', (req, res) => {
     res.json(rows)
   })
 })
+
+app.get('/profile', (req, res) => {
+
+  connection.query("select * from users where user_id='" +req.query.user_id+ "';", function(err, rows, fields) {
+    if (err) throw err
+
+    if(rows.length < 1) {
+      return
+    }
+
+    res.json(rows)
+  })
+})
+
 
 app.post('/submissions', (req, res) => {
   var bodyStr = ''

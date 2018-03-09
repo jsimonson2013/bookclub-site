@@ -7,7 +7,7 @@
 <body>
 <div id="wrapper">
 <div id="profile">
-	<h1>{{ content }}</h1>
+	<h1 v-if="user[0]">Welcome to {{ user[0].firstname }} {{ user[0].lastname }}'s profile!</h1>
 </div>
 </div>
 <script src="../scripts/profile.js"></script>
