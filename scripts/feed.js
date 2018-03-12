@@ -10,5 +10,10 @@ const app = new Vue({
   el: '#feed-list',
   data: {
     posts
+  },
+  methods: {
+    openPost: loc => {
+      window.open('http://' + loc)
+    } 
   }
 })

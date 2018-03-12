@@ -12,9 +12,9 @@
   <a href="../html/submit-post.html">New post</a>
 </div>
 <div id="feed-list">
-<div v-for="post in posts" v-if="post.content" style="background-color: lightgray; border: 2px solid; padding: 5px; margin: 1px;">
-  <h3>{{ post.content }}</h3>
-  <p>Posted by {{ post.author }} on {{ post.create_date }}</p>
+<div v-for="post in posts" v-if="post.content" style="background-color: lightgray; border: 2px solid; padding: 5px; margin: 1px;" @click="openPost(post.link)">
+    <h3>{{ post.content }}</h3>
+    <p>Posted by {{ post.author }} on {{ post.create_date }}</p>
 </div>
 </div>
 </div>
