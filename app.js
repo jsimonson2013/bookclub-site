@@ -78,7 +78,7 @@ app.get('/profile', (req, res) => {
 })
 
 
-app.post('/submissions', (req, res) => {
+app.post('/submission', (req, res) => {
   var bodyStr = ''
 
   req.on("data", chunk => {
@@ -86,9 +86,9 @@ app.post('/submissions', (req, res) => {
   })
 
   req.on("end", () => {
-    var bodyArr = bodyStr.split(',')
+    bodyArr = bodyStr.split('=')
 
-    connection.query("insert into posts (title, author, votes) values ('" + bodyArr[1] + "', '" + bodyArr[2] + "', '');", function(err, result) {
+    connection.query("insert into posts (content) values ('" + bodyArr[1] + "');", function(err, result) {
       if (err) throw err
     })
 
