@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
+
 const mysql = require('mysql')
+const cp = require('cookie-parser')
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -8,6 +10,8 @@ const connection = mysql.createConnection({
   password: process.argv[3],
   database: process.argv[4]
 })
+
+app.use(cp())
 
 app.use('/scripts', express.static('scripts'))
 app.use('/html', express.static('html'))
@@ -30,6 +34,7 @@ app.get('/login', (req, res) => {
     }
     
     if (rows[0].password == req.query.pass) {
+      res.cookie('UID', rows[0].user_id, {maxAge: 900000, httpOnly: false})
       res.sendFile('html/feed-template.html', {root: __dirname})
     }
     else{
@@ -65,7 +70,6 @@ app.get('/feed', (req, res) => {
 })
 
 app.get('/profile', (req, res) => {
-
   connection.query("select * from users where user_id='" +req.query.user_id+ "';", function(err, rows, fields) {
     if (err) throw err
 
