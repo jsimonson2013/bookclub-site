@@ -14,6 +14,9 @@ const app = new Vue({
   methods: {
     openPost: loc => {
       window.open('http://' + loc)
+    },
+    voteOnPost: id => {
+      console.log(document.cookie.split("=")[1],'Voted',id)
     } 
   }
 })
