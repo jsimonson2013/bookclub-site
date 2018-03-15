@@ -11,6 +11,7 @@
   <a href="../html/feed-template.html">Back</a>
 </div>
 <div id="comment-list">
+<a href="../html/submit-comment.html">New Comment</a>
 <div v-for="comment in comments" v-if="comment.content" style="background-color: lightgray; border: 2px solid; padding: 5px; margin: 1px;">
   <h3>{{ comment.content }}</h3>
   <p>Posted by {{ comment.author }} on {{ comment.create_date }}</p>

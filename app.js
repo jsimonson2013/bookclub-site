@@ -93,6 +93,24 @@ app.get('/comments', (req, res) => {
   })
 })
 
+app.post('/comments', (req, res) => {
+  var bodyStr = ''
+
+  req.on("data", chunk => {
+    bodyStr += chunk.toString()
+  })
+
+  req.on("end", () => {
+    bodyArr = bodyStr.split('=')
+
+    connection.query("insert into posts (content, parent_id) values ('" + bodyArr[1] + "," + bodyArr[3] +"');", function(err, result) {
+      if (err) throw err
+    })
+
+  })
+})
+
+
 app.post('/submission', (req, res) => {
   var bodyStr = ''
 
