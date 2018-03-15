@@ -81,6 +81,17 @@ app.get('/profile', (req, res) => {
   })
 })
 
+app.get('/comments', (req, res) => {
+  connection.query("select * from posts where parent_id='" +req.query.parent_id+ "';", function(err, rows, fields) {
+    if (err) throw err
+
+    if(rows.length < 1) {
+      return
+    }
+
+    res.json(rows)
+  })
+})
 
 app.post('/submission', (req, res) => {
   var bodyStr = ''
@@ -98,7 +109,6 @@ app.post('/submission', (req, res) => {
 
   })
 })
-
 
 app.post('/users', (req, res) => {
   var bodyStr = ''

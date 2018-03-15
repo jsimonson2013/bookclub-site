@@ -1,0 +1,23 @@
+<html style="background-color: #ffffe6">
+<head>
+<meta charset="utf-8"/>
+<title>Post Comments</title>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+<head>
+<body>
+<div  id="wrapper">
+<div id="banner">
+  <h1>Group title</h1>
+  <a href="../html/feed-template.html">Back</a>
+</div>
+<div id="comment-list">
+<div v-for="comment in comments" v-if="comment.content" style="background-color: lightgray; border: 2px solid; padding: 5px; margin: 1px;">
+  <h3>{{ comment.content }}</h3>
+  <p>Posted by {{ comment.author }} on {{ comment.create_date }}</p>
+</div>
+</div>
+</div>
+<script src="../scripts/cookie-parser.js"></script>
+<script src="../scripts/comments.js"></script>
+</body>
+</html>

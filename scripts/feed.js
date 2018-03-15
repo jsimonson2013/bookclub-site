@@ -16,7 +16,10 @@ const app = new Vue({
       window.open('http://' + loc)
     },
     voteOnPost: id => {
-      console.log(document.cookie.split("=")[1],'Voted',id)
-    } 
+      console.log(getCookie('UID'))
+    }, 
+    viewComments: id => {
+      document.cookie = 'PID='+id+';path=/'
+    }
   }
 })

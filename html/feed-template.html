@@ -18,9 +18,11 @@
     <p>Posted by {{ post.author }} on {{ post.create_date }}</p>
   </span>
   <button @click="voteOnPost(post.post_id)">Upvote</button>
+  <a @click="viewComments(post.post_id)" href="../html/comments-template.html">View Comments</a>
 </div>
 </div>
 </div>
 <script src="../scripts/feed.js"></script>
+<script src="../scripts/cookie-parser.js"></script>
 </body>
 </html>
