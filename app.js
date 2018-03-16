@@ -112,18 +112,34 @@ app.post('/comments', (req, res) => {
 
 app.post('/vote', (req, res) => {
   var bodyStr = ''
+  var voteStr = ''
 
   req.on("data", chunk => {
     bodyStr += chunk.toString()
   })
 
   req.on("end", () => {
-    bodyArr = bodyStr.split('=')
-    connection.query("update posts set score='"+bodyArr[2]+"' where post_id="+bodyArr[1].split('&')[0]+";", function(err, result) {
+    var bodyArr = bodyStr.split('=')
+    
+    connection.query("select * from posts where post_id="+bodyArr[1].split('&')[0]+";", function(err, rows, fields) {
       if (err) throw err
-    })
 
-    res.sendFile('html/feed-template.html', {root: __dirname})
+      if(!rows.length) {
+        return
+      }
+      if (rows[0].votes)
+      	voteStr = rows[0].votes + "," + bodyArr[2]
+      else
+        voteStr = bodyArr[2].toString()
+      updateVotes()
+      
+      res.sendFile('html/feed-template.html', {root: __dirname})
+    })
+    var updateVotes = () => {
+      connection.query("update posts set votes='"+voteStr+"' where post_id="+bodyArr[1].split('&')[0]+";", function(err, result) {
+        if (err) throw err
+      })
+    }
   })
 })
 
