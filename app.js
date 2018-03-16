@@ -55,7 +55,6 @@ app.get('/users', (req, res) => {
   })
 })
 
-
 app.get('/feed', (req, res) => {
 
   connection.query("select * from posts;", function(err, rows, fields) {
@@ -111,6 +110,22 @@ app.post('/comments', (req, res) => {
   })
 })
 
+app.post('/vote', (req, res) => {
+  var bodyStr = ''
+
+  req.on("data", chunk => {
+    bodyStr += chunk.toString()
+  })
+
+  req.on("end", () => {
+    bodyArr = bodyStr.split('=')
+    connection.query("update posts set score='"+bodyArr[2]+"' where post_id="+bodyArr[1].split('&')[0]+";", function(err, result) {
+      if (err) throw err
+    })
+
+    res.sendFile('html/feed-template.html', {root: __dirname})
+  })
+})
 
 app.post('/submission', (req, res) => {
   var bodyStr = ''
