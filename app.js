@@ -102,11 +102,12 @@ app.post('/comments', (req, res) => {
 
   req.on("end", () => {
     bodyArr = bodyStr.split('=')
-
-    connection.query("insert into posts (content, parent_id) values ('" + bodyArr[1] + "," + bodyArr[3] +"');", function(err, result) {
+    
+    connection.query("insert into posts (content, parent_id) values ('" + bodyArr[1].split('&')[0] + "','" + bodyArr[2] +"');", function(err, result) {
       if (err) throw err
     })
 
+    res.sendFile('html/feed-template.html', {root: __dirname})
   })
 })
 
@@ -125,6 +126,7 @@ app.post('/submission', (req, res) => {
       if (err) throw err
     })
 
+    res.sendFile('html/feed-template.html', {root: __dirname})
   })
 })
 
