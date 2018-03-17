@@ -75,6 +75,9 @@ const htmlEscape = input => {
   let escapedString = input
   for (let i = input.length - 1; i >0; i--) {
     switch(input.charAt(i)){
+      case ":":
+        escapedString = `${input.slice(0, i)}\\${escapedString.slice(i)}`
+        break
       case "+":
         escapedString = `${input.slice(0, i)} ${escapedString.slice(i + 1)}`
         break
@@ -92,14 +95,60 @@ app.post('/comments', (req, res) => {
 
   req.on("end", () => {
     let bodyArr = bodyStr.split('=')
-    let body = htmlEscape(bodyArr[1].split('&')[0])
-    
-    connection.query(`insert into posts (content, parent_id) values ('${body}','${bodyArr[2]}');`, (err, result) => {
-      if (err) throw err
-    })
 
-    res.sendFile('html/feed-template.html', {root: __dirname})
+    let uid = bodyArr[4]
+    connection.query(`select * from users where user_id=${uid};`, (err, rows, fields) => {
+      if (err) throw err
+
+      if (!rows.length) return
+
+      insertComment(`${rows[0].firstname} ${rows[0].lastname}`, bodyArr)
+    })
   })
+
+  const insertComment = (author, bodyArr) => {
+    let body = htmlEscape(bodyArr[1].split('&')[0])
+    let pid = bodyArr[2].split('&')[0]
+    let date = htmlEscape(decodeURIComponent(bodyArr[3].split('&')[0]))
+    
+    connection.query(`insert into posts (content, parent_id, create_date, author) values ('${body}','${pid}', '${date}', '${author}');`, (err, result) => {
+      if (err) throw err
+
+      res.sendFile('html/feed-template.html', {root: __dirname})
+    })
+  }
+})
+
+app.post('/submission', (req, res) => {
+  let bodyStr = ''
+
+  req.on("data", chunk => {
+    bodyStr += chunk.toString()
+  })
+
+  req.on("end", () => {
+    let bodyArr = bodyStr.split('=')
+
+    let uid = bodyArr[3]
+    connection.query(`select * from users where user_id=${uid};`, (err, rows, fields) => {
+      if (err) throw err
+
+      if (!rows.length) return
+
+      insertPost(`${rows[0].firstname} ${rows[0].lastname}`, bodyArr)
+    })
+  })
+
+  const insertPost = (author, bodyArr) => {
+    let body = htmlEscape(bodyArr[1].split('&')[0])
+    let date = htmlEscape(decodeURIComponent(bodyArr[2].split('&')[0]))
+    
+    connection.query(`insert into posts (content, create_date, author) values ('${body}', '${date}', '${author}');`, (err, result) => {
+      if (err) throw err
+
+      res.sendFile('html/feed-template.html', {root: __dirname})
+    })
+  }
 })
 
 app.post('/vote', (req, res) => {
@@ -132,24 +181,5 @@ app.post('/vote', (req, res) => {
         if (err) throw err
       })
     }
-  })
-})
-
-app.post('/submission', (req, res) => {
-  let bodyStr = ''
-
-  req.on("data", chunk => {
-    bodyStr += chunk.toString()
-  })
-
-  req.on("end", () => {
-    let bodyArr = bodyStr.split('=')
-    let body = htmlEscape(bodyArr[1])
-
-    connection.query(`insert into posts (content) values ('${body}');`, (err, result) => {
-      if (err) throw err
-    })
-
-    res.sendFile('html/feed-template.html', {root: __dirname})
   })
 })
