@@ -1,3 +1,5 @@
+'use strict'
+
 const express = require('express')
 const app = express()
 
@@ -69,17 +71,30 @@ app.get('/comments', (req, res) => {
   })
 })
 
+const htmlEscape = input => {
+  let escapedString = input
+  for (let i = input.length - 1; i >0; i--) {
+    switch(input.charAt(i)){
+      case "+":
+        escapedString = `${input.slice(0, i)} ${escapedString.slice(i + 1)}`
+        break
+    }
+  }
+  return escapedString
+}
+
 app.post('/comments', (req, res) => {
-  var bodyStr = ''
+  let bodyStr = ''
 
   req.on("data", chunk => {
     bodyStr += chunk.toString()
   })
 
   req.on("end", () => {
-    bodyArr = bodyStr.split('=')
+    let bodyArr = bodyStr.split('=')
+    let body = htmlEscape(bodyArr[1].split('&')[0])
     
-    connection.query(`insert into posts (content, parent_id) values ('${bodyArr[1].split('&')[0]}','${bodyArr[2]}');`, (err, result) => {
+    connection.query(`insert into posts (content, parent_id) values ('${body}','${bodyArr[2]}');`, (err, result) => {
       if (err) throw err
     })
 
@@ -128,9 +143,10 @@ app.post('/submission', (req, res) => {
   })
 
   req.on("end", () => {
-    bodyArr = bodyStr.split('=')
+    let bodyArr = bodyStr.split('=')
+    let body = htmlEscape(bodyArr[1])
 
-    connection.query(`insert into posts (content) values ('${bodyArr[1]}');`, (err, result) => {
+    connection.query(`insert into posts (content) values ('${body}');`, (err, result) => {
       if (err) throw err
     })
 

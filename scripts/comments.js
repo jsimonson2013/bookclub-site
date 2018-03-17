@@ -10,5 +10,10 @@ const app = new Vue({
   el: '#comment-list',
   data: {
     comments
+  },
+  methods: {
+    body: content => {
+      return decodeURIComponent(content)
+    }
   }
 })

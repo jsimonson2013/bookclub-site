@@ -22,6 +22,9 @@ const app = new Vue({
     }, 
     viewComments: id => {
       document.cookie = 'PID='+id+';path=/'
+    },
+    body: content => {
+      return decodeURIComponent(content)
     }
   }
 })
