@@ -25,68 +25,45 @@ app.get('/', (req, res) => {
 })
 
 app.get('/login', (req, res) => {
-  connection.query("select * from users WHERE username='" + req.query.user + "';", function (err, rows, fields) {
+  connection.query(`select * from users WHERE username='${req.query.user}';`, (err, rows, fields) => {
     if (err) throw err
 
-    if(rows.length < 1) {
-     res.sendFile('html/login-template.html', {root: __dirname})
-     return
-    }
+    if(!rows.length) res.sendFile('html/login-template.html', {root: __dirname})
     
-    if (rows[0].password == req.query.pass) {
+    else if (rows[0].password == req.query.pass) {
       res.cookie('UID', rows[0].user_id, {maxAge: 900000, httpOnly: false})
       res.sendFile('html/feed-template.html', {root: __dirname})
     }
-    else{
-      res.sendFile('html/login-template.html', {root: __dirname})
-    }
-  })
-})
 
-app.get('/users', (req, res) => {
-  connection.query("select * from users;", function(err, rows, fields) {
-    if (err) throw err
-
-    if(rows.length < 1) {
-      return
-    }
-
-    res.json(rows)
+    else res.sendFile('html/login-template.html', {root: __dirname})
   })
 })
 
 app.get('/feed', (req, res) => {
-
-  connection.query("select * from posts;", function(err, rows, fields) {
+  connection.query("select * from posts;", (err, rows, fields) => {
     if (err) throw err
 
-    if(rows.length < 1) {
-      return
-    }
+    if(rows.length < 1) return
 
     res.json(rows)
   })
 })
 
 app.get('/profile', (req, res) => {
-  connection.query("select * from users where user_id='" +req.query.user_id+ "';", function(err, rows, fields) {
+  connection.query(`select * from users where user_id='${req.query.user_id}';`, (err, rows, fields) => {
     if (err) throw err
 
-    if(rows.length < 1) {
-      return
-    }
+    if(rows.length < 1) return
 
     res.json(rows)
   })
 })
 
 app.get('/comments', (req, res) => {
-  connection.query("select * from posts where parent_id='" +req.query.parent_id+ "';", function(err, rows, fields) {
+  connection.query(`select * from posts where parent_id='${req.query.parent_id}';`, (err, rows, fields) =>{
     if (err) throw err
 
-    if(rows.length < 1) {
-      return
-    }
+    if(rows.length < 1) return
 
     res.json(rows)
   })
@@ -102,7 +79,7 @@ app.post('/comments', (req, res) => {
   req.on("end", () => {
     bodyArr = bodyStr.split('=')
     
-    connection.query("insert into posts (content, parent_id) values ('" + bodyArr[1].split('&')[0] + "','" + bodyArr[2] +"');", function(err, result) {
+    connection.query(`insert into posts (content, parent_id) values ('${bodyArr[1].split('&')[0]}','${bodyArr[2]}');`, (err, result) => {
       if (err) throw err
     })
 
@@ -121,22 +98,22 @@ app.post('/vote', (req, res) => {
   req.on("end", () => {
     var bodyArr = bodyStr.split('=')
     
-    connection.query("select * from posts where post_id="+bodyArr[1].split('&')[0]+";", function(err, rows, fields) {
+    connection.query(`select * from posts where post_id=${bodyArr[1].split('&')[0]};`, (err, rows, fields) => {
       if (err) throw err
 
-      if(!rows.length) {
-        return
-      }
-      if (rows[0].votes)
-      	voteStr = rows[0].votes + "," + bodyArr[2]
-      else
-        voteStr = bodyArr[2].toString()
+      if(!rows.length) return
+
+      if (rows[0].votes) voteStr = `${rows[0].votes}, ${bodyArr[2]}`
+
+      else voteStr = bodyArr[2].toString()
+
       updateVotes()
       
       res.sendFile('html/feed-template.html', {root: __dirname})
     })
+
     var updateVotes = () => {
-      connection.query("update posts set votes='"+voteStr+"' where post_id="+bodyArr[1].split('&')[0]+";", function(err, result) {
+      connection.query(`update posts set votes='${voteStr}' where post_id=${bodyArr[1].split('&')[0]};`, (err, result) => {
         if (err) throw err
       })
     }
@@ -153,51 +130,10 @@ app.post('/submission', (req, res) => {
   req.on("end", () => {
     bodyArr = bodyStr.split('=')
 
-    connection.query("insert into posts (content) values ('" + bodyArr[1] + "');", function(err, result) {
+    connection.query(`insert into posts (content) values ('${bodyArr[1]}');`, (err, result) => {
       if (err) throw err
     })
 
     res.sendFile('html/feed-template.html', {root: __dirname})
   })
 })
-
-app.post('/users', (req, res) => {
-  var bodyStr = ''
-  var voteStr = ''
-
-  req.on("data", chunk => {
-    bodyStr += chunk.toString()
-  })
-
-  req.on("end", () => {
-    var bodyArr = bodyStr.split(',')
-
-    connection.query("select * from posts where id=" + bodyArr[0] + ";", function(err, rows, fields) {
-      if (err) throw err
-
-      if(rows.length < 1) {
-        return
-      }
-      if (rows[0].votes.length > 0)
-      	voteStr = rows[0].votes + "," + bodyArr[1]
-      else
-        voteStr = bodyArr[1].toString()
-      updateVotes()
-    })
-
-    var updateVotes = () => {
-      connection.query("update posts set votes='" + voteStr + "' where id=" + bodyArr[0] + ";", function(err, result) {
-        if (err) throw err
-      })
-    }
-  })
-})
-
-app.put('/user', (req, res) => {
-  res.send('Got a PUT request at /user!')
-})
-
-app.delete('/user', (req, res) => {
-  res.send('Got a DELET request at /user!')
-})
-
