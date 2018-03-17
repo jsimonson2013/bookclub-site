@@ -88,15 +88,15 @@ app.post('/comments', (req, res) => {
 })
 
 app.post('/vote', (req, res) => {
-  var bodyStr = ''
-  var voteStr = ''
+  let bodyStr = ''
+  let voteStr = ''
 
   req.on("data", chunk => {
     bodyStr += chunk.toString()
   })
 
   req.on("end", () => {
-    var bodyArr = bodyStr.split('=')
+    let bodyArr = bodyStr.split('=')
     
     connection.query(`select * from posts where post_id=${bodyArr[1].split('&')[0]};`, (err, rows, fields) => {
       if (err) throw err
@@ -112,7 +112,7 @@ app.post('/vote', (req, res) => {
       res.sendFile('html/feed-template.html', {root: __dirname})
     })
 
-    var updateVotes = () => {
+    let updateVotes = () => {
       connection.query(`update posts set votes='${voteStr}' where post_id=${bodyArr[1].split('&')[0]};`, (err, result) => {
         if (err) throw err
       })
@@ -121,7 +121,7 @@ app.post('/vote', (req, res) => {
 })
 
 app.post('/submission', (req, res) => {
-  var bodyStr = ''
+  let bodyStr = ''
 
   req.on("data", chunk => {
     bodyStr += chunk.toString()
