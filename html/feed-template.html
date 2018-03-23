@@ -1,4 +1,4 @@
-<html style="background-color: #ffffe6">
+<html style="background-color: #e6f7ff">
 <head>
 <meta charset="utf-8"/>
 <title>Posts</title>
@@ -6,13 +6,13 @@
 <head>
 <body>
 <div  id="wrapper">
-<div id="banner">
-  <h1>Group title</h1>
+<div id="banner" style="background-color: #66ccff; padding: 10px; margin: 0px 0px 10px 0px">
+  <h1>Ex Roomies :'( Still Besties :)</h1>
   <a href="../html/profile-template.html">My profile</a>
   <a href="../html/submit-post.html">New post</a>
 </div>
 <div id="feed-list">
-<div v-for="post in posts" v-if="post.content && !post.parent_id" style="background-color: lightgray; border: 2px solid; padding: 5px; margin: 1px;">
+<div v-for="post in posts" v-if="post.content && !post.parent_id" style="background-color: white; border: 1px outset #0095e6; padding: 5px; margin: 1px;">
   <span @click="openPost(post.link)">
     <h3>{{ body(post.content) }}</h3>
     <p>Posted by {{ post.author }} on {{ post.create_date }}</p>
