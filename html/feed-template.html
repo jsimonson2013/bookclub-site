@@ -1,24 +1,24 @@
-<html style="background-color: #e6f7ff">
+<html style="background-color: #e6feff;">
 <head>
 <meta charset="utf-8"/>
 <title>Posts</title>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
 <head>
 <body>
-<div  id="wrapper">
-<div id="banner" style="background-color: #66ccff; padding: 10px; margin: 0px 0px 10px 0px">
-  <h1>Ex Roomies :'( Still Besties :)</h1>
+<div id="wrapper" style="width: 90%; margin-left: auto; margin-right: auto">
+<div id="banner" style="background-color: #00c5cc; height: 30%; border: 1px solid #006366; padding: 10px; margin: 0px 0px 10px 0px">
+  <h1 style="font-size: 250%; color: #1b1b1b">Ex Roomies :'( Still Besties :)</h1>
   <a href="../html/profile-template.html">My profile</a>
   <a href="../html/submit-post.html">New post</a>
 </div>
-<div id="feed-list">
-<div v-for="post in posts" v-if="post.content && !post.parent_id" style="background-color: white; border: 1px outset #0095e6; padding: 5px; margin: 1px;">
-  <span @click="openPost(post.link)">
-    <h3>{{ body(post.content) }}</h3>
-    <p>Posted by {{ post.author }} on {{ post.create_date }}</p>
-  </span>
-  <button @click="voteOnPost(post.post_id)">Upvote</button>
-  <a @click="viewComments(post.post_id)" href="../html/comments-template.html">Comments</a>
+<div id="feed-list" style="height=70%">
+<div v-for="post in posts" v-if="post.content && !post.parent_id" style="background-color: #fcfcfc; height:20%; border: 1px outset #006366; padding: 5px; margin: 1px;">
+  <div>
+    <button @click="voteOnPost(post.post_id)" style="display: inline-block">^</button>
+    <h3 style="font-size: 150%; color: #1b1b1b; display: inline-block; cursor: pointer" @click="openPost(post.link)">{{ body(post.content) }}</h3>
+  </div>
+  <p style="font-size: 50%; color: #1b1b1b; display: inline-block">Posted by {{ post.author }} on {{ post.create_date }}</p>
+  <a @click="viewComments(post.post_id)" style="display: inline-block" href="../html/comments-template.html">Comments</a>
 </div>
 </div>
 </div>
