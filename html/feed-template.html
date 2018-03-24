@@ -14,11 +14,13 @@
 <div id="feed-list" style="height=70%">
 <div v-for="post in posts" v-if="post.content && !post.parent_id" style="background-color: #fcfcfc; height:20%; border: 1px outset #006366; padding: 5px; margin: 1px;">
   <div>
-    <a @click="voteOnPost(post.post_id)" style="display: inline-block; width: 10%"><img src="../icons/voteicon.png" style="width: 50%"></a>
+    <a @click="voteOnPost(post.post_id)" style="display: inline-block; width: 5%; cursor: pointer; text-align: center"><img src="../icons/voteicon.png" style="width: 35%; height: 15%"></a>
     <h3 style="font-size: 150%; color: #1b1b1b; display: inline-block; cursor: pointer" @click="openPost(post.link)">{{ body(post.content) }}</h3>
   </div>
-  <p style="font-size: 50%; color: #1b1b1b; display: inline-block">Posted by {{ post.author }} on {{ post.create_date }}</p>
- <a @click="viewComments(post.post_id)" style="display: inline-block" href="../html/comments-template.html"><img src="../icons/commenticon.png" style="width: 10%; height: 25%"></a>
+  <div style="width: 100%">
+    <p style="font-size: 75%; color: #1b1b1b; display: inline-block; width: 90%">Posted by {{ post.author }} on {{ post.create_date }}</p>
+   <a @click="viewComments(post.post_id)" style="display: inline-block; text-align: right; width: 8%" href="../html/comments-template.html"><img src="../icons/commenticon.png" style="height: 25%"></a>
+  </div>
 </div>
 </div>
 </div>
