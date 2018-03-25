@@ -17,6 +17,7 @@ app.use(cp())
 
 app.use('/icons', express.static('icons'))
 app.use('/scripts', express.static('scripts'))
+app.use('/styles', express.static('styles'))
 app.use('/html', express.static('html'))
 
 app.listen(3000, () => {

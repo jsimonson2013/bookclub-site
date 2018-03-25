@@ -1,0 +1,57 @@
+#wrapper {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto
+}
+
+#banner {
+  background-color: #ffffd4;
+  height: 18%;
+  border: 1px solid #5c5c3d;
+  padding: 10px;
+  margin: 0px 0px 10px 0px
+}
+
+.banner-header {
+  font-size: 64;
+  font-family: calibri;
+  color: #2b2b2b;
+  margin-top: 10px
+}
+
+.feed-post {
+  background-color: #fffff4;
+  height: 22%;
+  border: 1px outset #5c5c3d;
+  padding: 5px;
+  margin: 1px
+}
+
+.vote-button {
+  display: inline-block;
+  width: 5%; 
+  cursor: pointer;
+  text-align: left
+}
+
+.post-content {
+  font-size: 42;
+  font-family: calibri;
+  color: #2b2b2b;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.post-stats {
+  font-size: 24;
+  font-family: calibri;
+  color: #2b2b2b;
+  display: inline-block;
+  width: 90%
+}
+
+.comment-button {
+  display: inline-block;
+  text-align: right;
+  width: 8%
+}

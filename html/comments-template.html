@@ -1,19 +1,20 @@
-<html style="background-color: #ffffe6">
+<html style="background-color: #737373">
 <head>
 <meta charset="utf-8"/>
 <title>Comments</title>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+<link rel="stylesheet" type="text/css" href="../styles/feed.css">
 <head>
 <body>
 <div  id="wrapper">
 <div id="banner">
-  <h1>Group title</h1>
+  <h1 class="banner-header">Ex Roomies :'( Still Besties :)</h1>
   <a href="../html/feed-template.html">Back</a>
+<a href="../html/submit-comment.html">New Comment</a>
 </div>
 <div id="comment-list">
-<a href="../html/submit-comment.html">New Comment</a>
-<div v-for="comment in comments" v-if="comment.content" style="background-color: lightgray; border: 2px solid; padding: 5px; margin: 1px;">
-  <h3>{{ body(comment.content) }}</h3>
+<div v-for="comment in comments" v-if="comment.content" class="feed-post">
+  <h3 class="post-content">{{ body(comment.content) }}</h3>
   <p>Posted by {{ comment.author }} on {{ comment.create_date }}</p>
 </div>
 </div>
