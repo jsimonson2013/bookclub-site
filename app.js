@@ -131,7 +131,7 @@ app.post('/submission', (req, res) => {
   req.on("end", () => {
     let bodyArr = bodyStr.split('=')
 
-    let uid = bodyArr[3]
+    let uid = bodyArr[4]
     connection.query(`select * from users where user_id=${uid};`, (err, rows, fields) => {
       if (err) throw err
 
@@ -143,9 +143,10 @@ app.post('/submission', (req, res) => {
 
   const insertPost = (author, bodyArr) => {
     let body = htmlEscape(bodyArr[1].split('&')[0])
-    let date = htmlEscape(decodeURIComponent(bodyArr[2].split('&')[0]))
+    let link = htmlEscape(decodeURIComponent(bodyArr[2].split('&')[0]))
+    let date = htmlEscape(decodeURIComponent(bodyArr[3].split('&')[0]))
     
-    connection.query(`insert into posts (content, create_date, author) values ('${body}', '${date}', '${author}');`, (err, result) => {
+    connection.query(`insert into posts (content, create_date, author, link) values ('${body}', '${date}', '${author}', '${link}');`, (err, result) => {
       if (err) throw err
 
       res.sendFile('html/feed-template.html', {root: __dirname})

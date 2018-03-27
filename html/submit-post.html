@@ -9,6 +9,7 @@
 <div id="wrapper">
 <form action="http://jacobsimonson.me:3000/submission/" method="post">
 	<textarea name="content" cols="40" rows="10" placeholder="Post goes here..."></textarea><br>
+	<textarea name="link" cols="40" rows="1" placeholder="Link goes here..."></textarea><br>
 	<textarea name="timestamp" :value="timestamp" style="display: none"></textarea>
 	<textarea name="user_id" :value="uid" style="display: none"></textarea>
 	<input type="submit" value="Post">

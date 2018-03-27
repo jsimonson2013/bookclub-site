@@ -13,7 +13,7 @@ const app = new Vue({
   },
   methods: {
     openPost: loc => {
-      window.open('http://' + loc)
+      window.open(loc)
     },
     voteOnPost: id => {
       const payload = `post_id=${id}&user_id=${getCookie('UID')}`
