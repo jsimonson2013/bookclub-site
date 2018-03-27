@@ -6,7 +6,7 @@
 
 #banner {
   background-color: #ffffd4;
-  height: 18%;
+  height: 20%;
   border: 1px solid #5c5c3d;
   padding: 10px;
   margin: 0px 0px 10px 0px
@@ -21,7 +21,7 @@
 
 .feed-post {
   background-color: #fffff4;
-  height: 22%;
+  height: 25%;
   border: 1px outset #5c5c3d;
   padding: 5px;
   margin: 1px
