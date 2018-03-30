@@ -119,11 +119,11 @@ app.post('/comments', (req, res) => {
     let body = htmlEscape(bodyArr[1].split('&')[0])
     let pid = bodyArr[2].split('&')[0]
     let date = htmlEscape(decodeURIComponent(bodyArr[3].split('&')[0]))
-    console.log(body) 
+    
     connection.query(`insert into posts (content, parent_id, create_date, author) values ('${body}','${pid}', '${date}', '${author}');`, (err, result) => {
       if (err) throw err
 
-      res.sendFile('html/feed-template.html', {root: __dirname})
+      res.send('OK')
     })
   }
 })
@@ -137,7 +137,6 @@ app.post('/submission', (req, res) => {
 
   req.on("end", () => {
     let bodyArr = bodyStr.split('=')
-    console.log(bodyArr)
 
     let uid = bodyArr[5]
     connection.query(`select * from users where user_id='${uid}';`, (err, rows, fields) => {
@@ -157,7 +156,7 @@ app.post('/submission', (req, res) => {
     connection.query(`insert into posts (content, create_date, author, link) values ('${body}', '${date}', '${author}', '${link}');`, (err, result) => {
       if (err) throw err
 
-      res.sendFile('html/feed-template.html', {root: __dirname})
+      res.send('OK')
     })
   }
 })
@@ -184,7 +183,7 @@ app.post('/vote', (req, res) => {
 
       updateVotes()
       
-      res.sendFile('html/feed-template.html', {root: __dirname})
+      res.send('OK')
     })
 
     let updateVotes = () => {
