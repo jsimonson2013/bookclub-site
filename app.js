@@ -5,6 +5,7 @@ const app = express()
 
 const mysql = require('mysql')
 const cp = require('cookie-parser')
+const cors = require('cors')
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -14,6 +15,7 @@ const connection = mysql.createConnection({
 })
 
 app.use(cp())
+app.use(cors())
 
 app.use('/icons', express.static('icons'))
 app.use('/scripts', express.static('scripts'))
@@ -35,8 +37,9 @@ app.get('/login', (req, res) => {
     if(!rows.length) res.sendFile('html/login-template.html', {root: __dirname})
     
     else if (rows[0].password == req.query.pass) {
-      res.cookie('UID', rows[0].user_id, {maxAge: 900000, httpOnly: false})
-      res.sendFile('html/feed-template.html', {root: __dirname})
+      res.cookie('UID', rows[0].user_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
+      res.redirect('http://friendgroup.jacobsimonson.me/html/feed-template.html')
+      //res.sendFile('html/feed-template.html', {root: __dirname})
     }
 
     else res.sendFile('html/login-template.html', {root: __dirname})
