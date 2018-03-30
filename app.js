@@ -42,8 +42,6 @@ app.get('/login', (req, res) => {
         url: 'http://friendgroup.jacobsimonson.me/html/feed-template.html',
         uid: rows[0].user_id
       })
-      //res.redirect('http://friendgroup.jacobsimonson.me/html/feed-template.html')
-      //res.sendFile('html/feed-template.html', {root: __dirname})
     }
 
     else res.sendFile('html/login-template.html', {root: __dirname})
@@ -84,6 +82,8 @@ const htmlEscape = input => {
   let escapedString = input
   for (let i = input.length - 1; i >0; i--) {
     switch(input.charAt(i)){
+      case "'":
+        escapedString = input.slice(0, i) + "'" + escapedString.slice(i+1)
       case ":":
         escapedString = `${input.slice(0, i)}\\${escapedString.slice(i)}`
         break
@@ -119,7 +119,7 @@ app.post('/comments', (req, res) => {
     let body = htmlEscape(bodyArr[1].split('&')[0])
     let pid = bodyArr[2].split('&')[0]
     let date = htmlEscape(decodeURIComponent(bodyArr[3].split('&')[0]))
-    
+    console.log(body) 
     connection.query(`insert into posts (content, parent_id, create_date, author) values ('${body}','${pid}', '${date}', '${author}');`, (err, result) => {
       if (err) throw err
 
@@ -137,9 +137,10 @@ app.post('/submission', (req, res) => {
 
   req.on("end", () => {
     let bodyArr = bodyStr.split('=')
+    console.log(bodyArr)
 
-    let uid = bodyArr[4]
-    connection.query(`select * from users where user_id=${uid};`, (err, rows, fields) => {
+    let uid = bodyArr[5]
+    connection.query(`select * from users where user_id='${uid}';`, (err, rows, fields) => {
       if (err) throw err
 
       if (!rows.length) return
@@ -151,7 +152,7 @@ app.post('/submission', (req, res) => {
   const insertPost = (author, bodyArr) => {
     let body = htmlEscape(bodyArr[1].split('&')[0])
     let link = htmlEscape(decodeURIComponent(bodyArr[2].split('&')[0]))
-    let date = htmlEscape(decodeURIComponent(bodyArr[3].split('&')[0]))
+    let date = htmlEscape(decodeURIComponent(bodyArr[4].split('&')[0]))
     
     connection.query(`insert into posts (content, create_date, author, link) values ('${body}', '${date}', '${author}', '${link}');`, (err, result) => {
       if (err) throw err
