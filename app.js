@@ -49,7 +49,7 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/feed', (req, res) => {
-  connection.query("select * from posts;", (err, rows, fields) => {
+  connection.query("select * from posts order by DATE(create_date) desc;", (err, rows, fields) => {
     if (err) throw err
 
     if(rows.length < 1) return
