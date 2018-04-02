@@ -48,6 +48,16 @@ app.get('/login', (req, res) => {
   })
 })
 
+app.post('/pas', (req, res) => {
+  req.on('data', chunk => {
+    console.log(chunk)
+  })
+
+  req.on('end', () => {
+    console.log('end\n')
+  })
+}
+
 app.get('/feed', (req, res) => {
   connection.query("select * from posts order by DATE(create_date) desc;", (err, rows, fields) => {
     if (err) throw err
