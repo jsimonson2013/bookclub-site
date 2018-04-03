@@ -2,6 +2,7 @@
 
 const express = require('express')
 const app = express()
+const bp = require('body-parser')
 
 const mysql = require('mysql')
 const cp = require('cookie-parser')
@@ -14,6 +15,7 @@ const connection = mysql.createConnection({
   database: process.argv[4]
 })
 
+app.use(bp.json())
 app.use(cp())
 app.use(cors())
 
@@ -115,31 +117,20 @@ const htmlEscape = input => {
 }
 
 app.post('/comments', (req, res) => {
-  let bodyStr = ''
+  connection.query(`select * from users where user_id=${req.body.user_id};`, (err, rows, fields) => {
+    if (err) throw err
 
-  req.on("data", chunk => {
-    bodyStr += chunk.toString()
+    if (!rows.length) return
+
+    insertComment(`${rows[0].firstname} ${rows[0].lastname}`, req.body)
   })
 
-  req.on("end", () => {
-    let bodyArr = bodyStr.split('=')
-
-    let uid = bodyArr[4]
-    connection.query(`select * from users where user_id=${uid};`, (err, rows, fields) => {
-      if (err) throw err
-
-      if (!rows.length) return
-
-      insertComment(`${rows[0].firstname} ${rows[0].lastname}`, bodyArr)
-    })
-  })
-
-  const insertComment = (author, bodyArr) => {
-    let body = htmlEscape(bodyArr[1].split('&')[0])
-    let pid = bodyArr[2].split('&')[0]
-    let date = htmlEscape(decodeURIComponent(bodyArr[3].split('&')[0]))
+  const insertComment = (author, body) => {
+    const content = htmlEscape(body.content)
+    const pid = body.parent_id
+    const date = htmlEscape(decodeURIComponent(body.timestamp))
     
-    connection.query(`insert into posts (content, parent_id, create_date, author) values ('${body}','${pid}', '${date}', '${author}');`, (err, result) => {
+    connection.query(`insert into posts (content, parent_id, create_date, author) values ('${content}','${pid}', '${date}', '${author}');`, (err, result) => {
       if (err) throw err
 
       res.send('OK')
@@ -148,31 +139,20 @@ app.post('/comments', (req, res) => {
 })
 
 app.post('/submission', (req, res) => {
-  let bodyStr = ''
+  connection.query(`select * from users where user_id=${req.body.user_id};`, (err, rows, fields) => {
+    if (err) throw err
 
-  req.on("data", chunk => {
-    bodyStr += chunk.toString()
+    if (!rows.length) return
+
+    insertPost(`${rows[0].firstname} ${rows[0].lastname}`, req.body)
   })
 
-  req.on("end", () => {
-    let bodyArr = bodyStr.split('=')
+  const insertPost = (author, body) => {
+    const content = htmlEscape(decodeURIComponent(body.content))
+    const link = htmlEscape(decodeURIComponent(body.link))
+    const date = htmlEscape(decodeURIComponent(body.timestamp))
 
-    let uid = bodyArr[5]
-    connection.query(`select * from users where user_id='${uid}';`, (err, rows, fields) => {
-      if (err) throw err
-
-      if (!rows.length) return
-
-      insertPost(`${rows[0].firstname} ${rows[0].lastname}`, bodyArr)
-    })
-  })
-
-  const insertPost = (author, bodyArr) => {
-    let body = htmlEscape(bodyArr[1].split('&')[0])
-    let link = htmlEscape(decodeURIComponent(bodyArr[2].split('&')[0]))
-    let date = htmlEscape(decodeURIComponent(bodyArr[4].split('&')[0]))
-    
-    connection.query(`insert into posts (content, create_date, author, link) values ('${body}', '${date}', '${author}', '${link}');`, (err, result) => {
+    connection.query(`insert into posts (content, create_date, author, link) values ('${content}', '${date}', '${author}', '${link}');`, (err, result) => {
       if (err) throw err
 
       res.send('OK')
