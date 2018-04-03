@@ -48,15 +48,24 @@ app.get('/login', (req, res) => {
   })
 })
 
-app.post('/pas', (req, res) => {
+app.post('/pass', (req, res) => {
+  let bodyStr = ''
+
   req.on('data', chunk => {
-    console.log(chunk)
+    bodyStr += chunk.toString()
   })
 
   req.on('end', () => {
-    console.log('end\n')
+    const userid = bodyStr.split('=')[2]
+    const newpass = bodyStr.split('=')[1].split('&')[0]
+
+    connection.query(`update users set password='${newpass}' where user_id=${userid};`, (err, result) => {
+      if (err) throw err
+
+      res.send('OK')
+    })
   })
-}
+})
 
 app.get('/feed', (req, res) => {
   connection.query("select * from posts order by DATE(create_date) desc;", (err, rows, fields) => {
