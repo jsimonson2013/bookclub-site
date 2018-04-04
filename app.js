@@ -19,24 +19,15 @@ app.use(bp.json())
 app.use(cp())
 app.use(cors())
 
-app.use('/icons', express.static('icons'))
-app.use('/scripts', express.static('scripts'))
-app.use('/styles', express.static('styles'))
-app.use('/html', express.static('html'))
-
 app.listen(3000, () => {
   console.log('App listening on port 3000!')
-})
-
-app.get('/', (req, res) => {
-  res.sendFile('html/login-template.html', {root: __dirname})
 })
 
 app.get('/login', (req, res) => {
   connection.query(`select * from users WHERE username='${req.query.user}';`, (err, rows, fields) => {
     if (err) throw err
 
-    if(!rows.length) res.sendFile('html/login-template.html', {root: __dirname})
+    if(!rows.length) res.send('OK')
     
     else if (rows[0].password == req.query.pass) {
       res.cookie('UID', rows[0].user_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
@@ -46,26 +37,18 @@ app.get('/login', (req, res) => {
       })
     }
 
-    else res.sendFile('html/login-template.html', {root: __dirname})
+    else res.send('OK')
   })
 })
 
 app.post('/pass', (req, res) => {
-  let bodyStr = ''
+  const userid = req.body.user
+  const newpass = req.body.newpass
 
-  req.on('data', chunk => {
-    bodyStr += chunk.toString()
-  })
+  connection.query(`update users set password='${newpass}' where user_id=${userid};`, (err, result) => {
+    if (err) throw err
 
-  req.on('end', () => {
-    const userid = bodyStr.split('=')[2]
-    const newpass = bodyStr.split('=')[1].split('&')[0]
-
-    connection.query(`update users set password='${newpass}' where user_id=${userid};`, (err, result) => {
-      if (err) throw err
-
-      res.send('OK')
-    })
+    res.send('OK')
   })
 })
 
@@ -161,34 +144,24 @@ app.post('/submission', (req, res) => {
 })
 
 app.post('/vote', (req, res) => {
-  let bodyStr = ''
-  let voteStr = ''
+  connection.query(`select * from posts where post_id=${req.body.post_id};`, (err, rows, fields) => {
+    if (err) throw err
 
-  req.on("data", chunk => {
-    bodyStr += chunk.toString()
-  })
+    if(!rows.length) return
 
-  req.on("end", () => {
-    let bodyArr = bodyStr.split('=')
+    let voteStr = ''
+    if (rows[0].votes) voteStr = `${rows[0].votes}, ${req.body.user_id}`
+
+    else voteStr = req.body.user_id
+
+    updateVotes(voteStr)
     
-    connection.query(`select * from posts where post_id=${bodyArr[1].split('&')[0]};`, (err, rows, fields) => {
-      if (err) throw err
-
-      if(!rows.length) return
-
-      if (rows[0].votes) voteStr = `${rows[0].votes}, ${bodyArr[2]}`
-
-      else voteStr = bodyArr[2].toString()
-
-      updateVotes()
-      
-      res.send('OK')
-    })
-
-    let updateVotes = () => {
-      connection.query(`update posts set votes='${voteStr}' where post_id=${bodyArr[1].split('&')[0]};`, (err, result) => {
-        if (err) throw err
-      })
-    }
+    res.send('OK')
   })
+
+  const updateVotes = votes => {
+    connection.query(`update posts set votes='${votes}' where post_id=${req.body.post_id};`, (err, result) => {
+      if (err) throw err
+    })
+  }
 })
