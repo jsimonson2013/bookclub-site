@@ -4,7 +4,7 @@
   "description": "Book Club Web Site",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "node app test pass friendgroup_test"
   },
   "repository": {
     "type": "git",
