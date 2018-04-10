@@ -4,7 +4,7 @@
   "description": "Book Club Web Site",
   "main": "index.js",
   "scripts": {
-    "test": "forever stopall && forever start -c \"node app test pass friendgroup_test\" .  && node test && forever stopall"
+    "test": "forever stopall && forever start -c \"node app test pass friendgroup_test\" .  && node test test pass friendgroup_test && forever stopall"
   },
   "repository": {
     "type": "git",
