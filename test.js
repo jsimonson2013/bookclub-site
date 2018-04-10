@@ -27,3 +27,30 @@ fetch('http://localhost:3000/login/?user=test&pass=pa', {method: 'GET'})
 		console.log('TEST 3 FAILED')
 	}
 })
+fetch('http://localhost:3000/feed', {method: 'GET'})
+.then(res => { 
+	if (res.headers.get('content-type').indexOf('application/json') != -1) {
+		console.log('TEST 4 PASSED')
+	}
+	else {
+		console.log('TEST 4 FAILED')
+	}
+})
+fetch('http://localhost:3000/profile/?user_id=1', {method: 'GET'})
+.then(res => {
+	if (res.headers.get('content-type').indexOf('application/json') != -1) {
+		console.log('TEST 5 PASSED')
+	}
+	else {
+		console.log('TEST 5 FAILED')
+	}
+})
+fetch('http://localhost:3000/comments/?parent_id=1', {method: 'GET'})
+.then(res => {
+	if (res.headers.get('content-type').indexOf('application/json') != -1) {
+		console.log('TEST 6 PASSED')
+	}
+	else {
+		console.log('TEST 6 FAILED')
+	}
+})
