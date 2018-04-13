@@ -76,7 +76,10 @@ app.get('/comments', (req, res) => {
   connection.query(`select * from posts where parent_id='${req.query.parent_id}' order by DATE(create_date) asc;`, (err, rows, fields) =>{
     if (err) throw err
 
-    if(rows.length < 1) return
+    if(rows.length < 1) {
+      res.json({'': ''})
+      return
+    }
 
     res.json(rows)
   })
