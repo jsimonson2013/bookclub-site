@@ -153,7 +153,11 @@ app.post('/vote', (req, res) => {
     if(!rows.length) return
 
     let voteStr = ''
-    if (rows[0].votes) voteStr = `${rows[0].votes}, ${req.body.user_id}`
+
+    if (rows[0].votes) {
+      voteStr = rows[0].votes
+      if (voteStr.split(',').indexOf(req.body.user_id) == -1) voteStr = `${voteStr},${req.body.user_id}`
+    }
 
     else voteStr = req.body.user_id
 
