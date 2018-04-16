@@ -24,7 +24,7 @@ app.listen(3000, () => {
 })
 
 app.get('/bypass', (req, res) => {
-  connection.query(`select * from users WHERE username='${req.query.user}';`, (err, rows, fields) => {
+  connection.query(`select * from users WHERE user_id='${req.query.user}';`, (err, rows, fields) => {
     if (err) throw err
 
     if(!rows.length) res.send('OK')
@@ -36,7 +36,7 @@ app.get('/bypass', (req, res) => {
       })
     }
   })
-}
+})
 
 
 app.get('/login', (req, res) => {
