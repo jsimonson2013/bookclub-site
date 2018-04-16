@@ -23,6 +23,22 @@ app.listen(3000, () => {
   console.log('App listening on port 3000!')
 })
 
+app.get('/bypass', (req, res) => {
+  connection.query(`select * from users WHERE username='${req.query.user}';`, (err, rows, fields) => {
+    if (err) throw err
+
+    if(!rows.length) res.send('OK')
+    
+    else {
+      res.json({
+        url: 'http://friendgroup.jacobsimonson.me/html/feed-template.html',
+        uid: rows[0].user_id
+      })
+    }
+  })
+}
+
+
 app.get('/login', (req, res) => {
   connection.query(`select * from users WHERE username='${req.query.user}';`, (err, rows, fields) => {
     if (err) throw err
