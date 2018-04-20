@@ -57,6 +57,17 @@ app.get('/login', (req, res) => {
   })
 })
 
+app.get('/score', (req, res) => {
+  const author = `${req.query.first} ${req.query.last}`
+  connection.query(`select * from posts where author='${author}';`, (err, rows, fields) => {
+    if (err) throw err
+
+    if(!rows.length) res.json({'score': 0})
+
+    else res.json({'score': 1})
+  })
+})
+
 app.post('/pass', (req, res) => {
   const userid = req.body.user
   const newpass = req.body.newpass
