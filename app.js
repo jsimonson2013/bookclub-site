@@ -31,7 +31,7 @@ app.get('/bypass', (req, res) => {
     
     else {
       res.json({
-        url: 'http://friendgroup.jacobsimonson.me/html/feed-template.html',
+        url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
         uid: rows[0].user_id
       })
     }
@@ -48,7 +48,7 @@ app.get('/login', (req, res) => {
     else if (rows[0].password == req.query.pass) {
       res.cookie('UID', rows[0].user_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
       res.json({
-        url: 'http://friendgroup.jacobsimonson.me/html/feed-template.html',
+        url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
         uid: rows[0].user_id
       })
     }
