@@ -64,7 +64,7 @@ app.get('/score', (req, res) => {
 
     if(!rows.length) res.json({'score': 0})
 
-    else res.json({'score': 1})
+    else res.json({'score': rows.length})
   })
 })
 
