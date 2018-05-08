@@ -58,13 +58,35 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/score', (req, res) => {
-  const author = `${req.query.first} ${req.query.last}`
-  connection.query(`select * from posts where author='${author}';`, (err, rows, fields) => {
+  connection.query(`select * from users where firstname='${req.query.first}' and lastname='${req.query.last}';`, (err, rows, fields) => {
     if (err) throw err
 
     if(!rows.length) res.json({'score': 0})
 
-    else res.json({'score': rows.length})
+    else res.json({'score': rows[0].score})
+  })
+})
+
+app.get('/update-score', (req, res) => {
+  const author = `${req.query.first} ${req.query.last}`
+  let score = 0
+  connection.query(`select * from posts where author='${author}';`, (err, rows, fields) => {
+    if (err) throw err
+
+    if(!rows.length) {
+      score = 0
+      res.json({'score': 0})
+    }
+
+    else {
+      score = rows.length
+      res.json({'score': rows.length})
+    }
+
+    const firstname = req.query.first
+    connection.query(`update users set score=${score} where firstname='${firstname}';`, (err, results) => {
+      if (err) throw err
+    })
   })
 })
 
