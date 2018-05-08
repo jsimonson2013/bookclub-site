@@ -67,6 +67,13 @@ app.get('/score', (req, res) => {
   })
 })
 
+app.get('/increment-score', (req, res) => {
+  connection.query(`update users set score=score + 1 where user_id='${req.query.uid}';`, (err, results) => {
+    if (err) throw err
+    res.sendStatus(200)
+  })
+})
+
 app.get('/update-score', (req, res) => {
   const author = `${req.query.first} ${req.query.last}`
   let score = 0
