@@ -203,28 +203,9 @@ app.post('/submission', (req, res) => {
 })
 
 app.post('/vote', (req, res) => {
-  connection.query(`select * from posts where post_id=${req.body.post_id};`, (err, rows, fields) => {
+  connection.query(`insert into votes (user_id, post_id) values (${req.body.user_id}, ${req.body.post_id});`, (err, result) => {
     if (err) throw err
 
-    if(!rows.length) return
-
-    let voteStr = ''
-
-    if (rows[0].votes) {
-      voteStr = rows[0].votes
-      if (voteStr.split(',').indexOf(req.body.user_id) == -1) voteStr = `${voteStr},${req.body.user_id}`
-    }
-
-    else voteStr = req.body.user_id
-
-    updateVotes(voteStr)
-    
     res.send('OK')
   })
-
-  const updateVotes = votes => {
-    connection.query(`update posts set votes='${votes}' where post_id=${req.body.post_id};`, (err, result) => {
-      if (err) throw err
-    })
-  }
 })
