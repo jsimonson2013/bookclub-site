@@ -128,6 +128,19 @@ app.get('/profile', (req, res) => {
   })
 })
 
+app.get('/groups', (req, res) => {
+  connection.query(`select name from memberships inner join groups on memberships.group_id=groups.group_id where user_id=${req.query.user_id};`, (err, rows, fields) => {
+    if (err) throw err
+
+    if (rows.length < 1) {
+      res.json({'': ''})
+      return
+    }
+
+    res.json(rows)
+  })
+})
+
 app.get('/comments', (req, res) => {
   connection.query(`select * from posts where parent_id='${req.query.parent_id}' order by DATE(create_date) asc;`, (err, rows, fields) =>{
     if (err) throw err
