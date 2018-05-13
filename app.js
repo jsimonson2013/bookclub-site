@@ -77,32 +77,6 @@ app.get('/increment-score', (req, res) => {
 	})
 })
 
-/**
-app.get('/update-score', (req, res) => {
-	const author = `${req.query.first} ${req.query.last}`
-	let score = 0
-
-	connection.query(`select * from posts where author='${author}';`, (err, rows, fields) => {
-		if (err) throw err
-
-		if(!rows.length) {
-			score = 0
-			res.json({'score': 0})
-		}
-
-		else {
-			score = rows.length
-			res.json({'score': rows.length})
-		}
-
-		const firstname = req.query.first
-		connection.query(`update users set score=${score} where firstname='${firstname}';`, (err, results) => {
-			if (err) throw err
-		})
-	})
-})
-*/
-
 app.post('/pass', (req, res) => {
 	const userid = req.body.user
 	const newpass = req.body.newpass
@@ -110,7 +84,7 @@ app.post('/pass', (req, res) => {
 	connection.query(`update users set pass=AES_ENCRYPT('${newpass}', '$process.argv[5]') where user_id=${userid};`, (err, result) => {
 		if (err) throw err
 
-		res.send('OK')
+		res.sendStatus(200)
 	})
 })
 
@@ -177,54 +151,56 @@ const htmlEscape = input => {
 	return escapedString
 }
 
-app.post('/comments', (req, res) => {
-	connection.query(`select * from users where user_id=${req.body.user_id};`, (err, rows, fields) => {
+const insertPost = (type, params) => {
+	connection.query(`select firstname, lastname from users where user_id=${params.user_id};`, (err, rows, fields) => {
 		if (err) throw err
 
-		if (!rows.length) return
+		if (!rows.length) return false
 
-		insertComment(`${rows[0].firstname} ${rows[0].lastname}`, req.body)
-	})
+		const content = htmlEscape(params.content)
+		const date = htmlEscape(decodeURIComponent(params.timestamp))
 
-	const insertComment = (author, body) => {
-		const content = htmlEscape(body.content)
-		const pid = body.parent_id
-		const date = htmlEscape(decodeURIComponent(body.timestamp))
-    
-		connection.query(`insert into posts (content, parent_id, create_date, author) values ('${content}','${pid}', '${date}', '${author}');`, (err, result) => {
+		const gid = params.group_id
+		const author = `${rows[0].firstname} ${rows[0].lastname}`
+
+		let queryString = ''
+
+		if (type == 'comment') {
+			const pid = params.parent_id
+			queryString = `insert into posts (content, parent_id, group_id, create_date, author) values ('${content}', '${pid}', '${gid}', '${date}', '${author}');`
+		}
+
+		else if (type == 'post') {
+			const link = htmlEscape(decodeURIComponent(params.link))
+			queryString = `insert into posts (content, group_id, create_date, author, link) values ('${content}', '${gid}', '${date}', '${author}', '${link}');`
+		}
+
+		if (queryString.length < 1) return false
+
+		connection.query(queryString, (err, result) => {
 			if (err) throw err
 
-			res.send('OK')
+			return true
 		})
-	}
+	})
+}
+
+app.post('/comments', (req, res) => {
+	if (insertPost('comment', req.body)) res.sendStatus(200)
+
+	else res.sendStatus(404)
 })
 
 app.post('/submission', (req, res) => {
-	connection.query(`select * from users where user_id=${req.body.user_id};`, (err, rows, fields) => {
-		if (err) throw err
+	if (insertPost('post', req.body)) res.sendStatus(200)
 
-		if (!rows.length) return
-
-		insertPost(`${rows[0].firstname} ${rows[0].lastname}`, req.body)
-	})
-
-	const insertPost = (author, body) => {
-		const content = htmlEscape(decodeURIComponent(body.content))
-		const link = htmlEscape(decodeURIComponent(body.link))
-		const date = htmlEscape(decodeURIComponent(body.timestamp))
-
-		connection.query(`insert into posts (content, create_date, author, link) values ('${content}', '${date}', '${author}', '${link}');`, (err, result) => {
-			if (err) throw err
-
-			res.send('OK')
-		})
-	}
+	else res.sendStatus(404)
 })
 
 app.post('/vote', (req, res) => {
 	connection.query(`insert into votes (user_id, post_id) values (${req.body.user_id}, ${req.body.post_id});`, (err, result) => {
 		if (err) throw err
 
-		res.send('OK')
+		res.sendStatus(200)
 	})
 })
