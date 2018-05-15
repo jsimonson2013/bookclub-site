@@ -89,7 +89,7 @@ app.post('/pass', (req, res) => {
 })
 
 app.get('/feed', (req, res) => {
-	connection.query(`select * from posts where group_id=${req.query.group_id} order by DATE(create_date) desc;`, (err, rows, fields) => {
+	connection.query(`select * from posts where group_id=${req.query.group_id} order by DATE(date) desc;`, (err, rows, fields) => {
 		if (err) throw err
 
 		if(rows.length < 1) return
@@ -109,7 +109,7 @@ app.get('/profile', (req, res) => {
 })
 
 app.get('/groups', (req, res) => {
-	connection.query(`select name from memberships inner join groups on memberships.group_id=groups.group_id where user_id=${req.query.user_id};`, (err, rows, fields) => {
+	connection.query(`select name, groups.group_id from memberships inner join groups on memberships.group_id=groups.group_id where user_id=${req.query.user_id};`, (err, rows, fields) => {
 		if (err) throw err
 
 		if (rows.length < 1) {
@@ -122,7 +122,7 @@ app.get('/groups', (req, res) => {
 })
 
 app.get('/comments', (req, res) => {
-	connection.query(`select * from posts where parent_id='${req.query.parent_id}' order by DATE(create_date) asc;`, (err, rows, fields) =>{
+	connection.query(`select * from posts where parent_id='${req.query.parent_id}' order by DATE(date) asc;`, (err, rows, fields) =>{
 		if (err) throw err
 
 		if(rows.length < 1) {
@@ -167,12 +167,12 @@ const insertPost = (type, params) => {
 
 		if (type == 'comment') {
 			const pid = params.parent_id
-			queryString = `insert into posts (content, parent_id, group_id, create_date, author) values ('${content}', '${pid}', '${gid}', '${date}', '${author}');`
+			queryString = `insert into posts (content, parent_id, group_id, date, author) values ('${content}', '${pid}', '${gid}', '${date}', '${author}');`
 		}
 
 		else if (type == 'post') {
 			const link = htmlEscape(decodeURIComponent(params.link))
-			queryString = `insert into posts (content, group_id, create_date, author, link) values ('${content}', '${gid}', '${date}', '${author}', '${link}');`
+			queryString = `insert into posts (content, group_id, date, author, link) values ('${content}', '${gid}', '${date}', '${author}', '${link}');`
 		}
 
 		if (queryString.length < 1) return false
