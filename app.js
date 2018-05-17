@@ -146,6 +146,8 @@ const htmlEscape = input => {
 			case "+":
 				escapedString = `${input.slice(0, i)} ${escapedString.slice(i + 1)}`
 				break
+			case "%":
+				escapedString = escapedString.replace(/%([^\d].)/, "%25$1")
 		}
 	}
 	return escapedString
