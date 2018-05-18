@@ -136,6 +136,7 @@ app.get('/comments', (req, res) => {
 
 const htmlEscape = input => {
 	let escapedString = input
+
 	for (let i = input.length - 1; i >0; i--) {
 		switch(input.charAt(i)){
 			case "'":
@@ -147,7 +148,8 @@ const htmlEscape = input => {
 				escapedString = `${input.slice(0, i)} ${escapedString.slice(i + 1)}`
 				break
 			case "%":
-				escapedString = escapedString.replace(/%([^\d].)/, "%25$1")
+				escapedString = `${input.slice(0, i)}%25${escapedString.slice(i + 1)}`
+				break
 		}
 	}
 	return escapedString
