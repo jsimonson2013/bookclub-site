@@ -89,7 +89,7 @@ app.post('/pass', (req, res) => {
 })
 
 app.get('/feed', (req, res) => {
-	connection.query(`select * from posts where group_id=${req.query.group_id} order by DATE(date) desc;`, (err, rows, fields) => {
+	connection.query(`select content, parent_id, post_id, link, author, date from posts where group_id=${req.query.group_id} order by DATE(date) desc;`, (err, rows, fields) => {
 		if (err) throw err
 
 		if(rows.length < 1) return
@@ -121,8 +121,21 @@ app.get('/groups', (req, res) => {
 	})
 })
 
+app.get('/num-comments', (req, res) => {
+	connection.query(`select post_id from posts where parent_id='${req.query.parent_id}';`, (err, rows, fields) =>{
+		if (err) throw err
+
+		if(rows.length < 1) {
+			res.json({'': ''})
+			return
+		}
+
+		res.json(rows)
+	})
+})
+
 app.get('/comments', (req, res) => {
-	connection.query(`select * from posts where parent_id='${req.query.parent_id}' order by DATE(date) asc;`, (err, rows, fields) =>{
+	connection.query(`select content, author, date from posts where parent_id='${req.query.parent_id}' order by DATE(date) asc;`, (err, rows, fields) =>{
 		if (err) throw err
 
 		if(rows.length < 1) {
