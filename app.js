@@ -214,6 +214,19 @@ app.post('/submission', (req, res) => {
 	else res.sendStatus(404)
 })
 
+app.get('/votes', (req, res) => {
+	connection.query(`select vote_id from votes where post_id=${req.query.post_id};`, (err, rows, fields) => {
+		if (err) throw err
+
+		if(!rows.length) {
+			res.json({'': ''})
+			return
+		}
+
+		res.json(rows)
+	})
+})
+
 app.post('/vote', (req, res) => {
 	connection.query(`insert into votes (user_id, post_id) values (${req.body.user_id}, ${req.body.post_id});`, (err, result) => {
 		if (err) throw err
