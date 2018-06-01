@@ -227,10 +227,31 @@ app.get('/votes', (req, res) => {
 	})
 })
 
-app.post('/vote', (req, res) => {
-	connection.query(`insert into votes (user_id, post_id) values (${req.body.user_id}, ${req.body.post_id});`, (err, result) => {
+app.get('/votes-by-user', (req, res) => {
+	connection.query(`select vote_id from votes where post_id in (select post_id from votes where post_id=${req.query.post_id} and user_id=${req.query.user_id});`, (err, rows, fields) => {
 		if (err) throw err
 
-		res.sendStatus(200)
+		if(!rows.length) {
+			res.json({'': ''})
+			return
+		}
+
+		res.json(rows)
+	})
+})
+
+app.post('/vote', (req, res) => {
+	connection.query(`select user_id, post_id from votes where user_id=${req.body.user_id} and post_id=${req.body.post_id};`, (err, rows, fields) => {
+		if (err) throw err
+
+		if (!rows.length) {
+			connection.query(`insert into votes (user_id, post_id) values (${req.body.user_id}, ${req.body.post_id});`, (err, result) => {
+				if (err) throw err
+
+				res.sendStatus(200)
+			})
+		}
+
+		else res.sendStatus(200)
 	})
 })
