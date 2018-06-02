@@ -24,7 +24,7 @@ app.listen(3000, () => {
 })
 
 app.get('/bypass', (req, res) => {
-	connection.query(`select user_id, default_group_id from users WHERE user_id='${req.query.user}';`, (err, rows, fields) => {
+	connection.query(`select user_id, default_group_id, groups.name from users inner join groups on groups.group_id=users.default_group_id WHERE user_id='${req.query.user}';`, (err, rows, fields) => {
 		if (err) throw err
 
 		if(!rows.length) res.send('OK')
@@ -33,7 +33,8 @@ app.get('/bypass', (req, res) => {
 			res.json({
 				url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
 				uid: rows[0].user_id,
-				gid: rows[0].default_group_id
+				gid: rows[0].default_group_id,
+				gname: rows[0].name
 			})
 		}
 	})
@@ -41,7 +42,7 @@ app.get('/bypass', (req, res) => {
 
 
 app.get('/login', (req, res) => {
-	connection.query(`select user_id, default_group_id, cast(AES_DECRYPT(pass, '${process.argv[5]}') as char(255)) pass_decrypt from users WHERE username='${req.query.user}';`, (err, rows, fields) => {
+	connection.query(`select user_id, default_group_id, groups.name, cast(AES_DECRYPT(pass, '${process.argv[5]}') as char(255)) pass_decrypt from users inner join groups on groups.group_id=users.default_group_id WHERE username='${req.query.user}';`, (err, rows, fields) => {
 		if (err) throw err
 
 		if(!rows.length) res.send('OK')
@@ -51,7 +52,8 @@ app.get('/login', (req, res) => {
 			res.json({
 				url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
 				uid: rows[0].user_id,
-				gid: rows[0].default_group_id
+				gid: rows[0].default_group_id,
+				gname: rows[0].name
 			})
 		}
 
