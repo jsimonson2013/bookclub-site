@@ -41,7 +41,6 @@ app.get('/bypass', (req, res) => {
 	})
 })
 
-
 app.get('/login', (req, res) => {
 	connection.query(`select user_id, default_group_id, groups.name, cast(AES_DECRYPT(pass, '${process.argv[5]}') as char(255)) pass_decrypt from users inner join groups on groups.group_id=users.default_group_id WHERE username='${req.query.user}';`, (err, rows, fields) => {
 		if (err) throw err
@@ -77,6 +76,34 @@ app.get('/increment-score', (req, res) => {
 		if (err) throw err
 
 		res.sendStatus(200)
+	})
+})
+
+app.get('/reset-pass', (req, res) => {
+	const email = req.query.email
+
+	let randpass = ''
+	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+	for (let i = 0; i < 5; i++) randpass += possible.charAt(Math.floor(Math.random() * possible.length))
+
+	connection.query(`update users set pass=AES_ENCRYPT('${randpass}', '${process.argv[5]}') where email='${email}';`, (err, results) => {
+		if (err) throw err
+
+		if (results.changedRows < 1) res.sendStatus(404)
+
+		else {
+			sendmail({
+				from: 'webmaster@jacobsimonson.me',
+				to: email,
+				subject: 'Your Password was Reset',
+				html: `Hello,<br><br>Your password has been reset to:<br><b>${randpass}<b><br>You should probably change that to something you will remember.<br><br>Have a great day!`,
+			}, (err, reply) => {
+				if (err) console.log(err)
+			})
+
+			res.sendStatus(200)
+		}
 	})
 })
 
