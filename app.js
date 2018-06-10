@@ -3,6 +3,7 @@
 const express = require('express')
 const app = express()
 const bp = require('body-parser')
+const sendmail = require('sendmail')()
 
 const mysql = require('mysql')
 const cp = require('cookie-parser')
@@ -83,10 +84,21 @@ app.post('/pass', (req, res) => {
 	const userid = req.body.user
 	const newpass = req.body.newpass
 
-	connection.query(`update users set pass=AES_ENCRYPT('${newpass}', '$process.argv[5]') where user_id=${userid};`, (err, result) => {
+	connection.query(`update users set pass=AES_ENCRYPT('${newpass}', '${process.argv[5]}') where user_id=${userid};`, (err, result) => {
 		if (err) throw err
 
-		res.sendStatus(200)
+		connection.query(`select email from users where user_id='${userid}';`, (err, rows, fields) => {
+			sendmail({
+				from: 'webmaster@jacobsimonson.me',
+				to: rows[0].email,
+				subject: 'Confirmation of Password Change',
+				html: 'Hello,<br><br>Just sending this email to let you know that you\'ve changed your password!<br><br>Have a great day!',
+			}, (err, reply) => {
+				if (err) console.log(err)
+			})
+
+			res.sendStatus(200)
+		})
 	})
 })
 
