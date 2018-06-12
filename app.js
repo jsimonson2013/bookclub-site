@@ -97,13 +97,25 @@ app.get('/reset-pass', (req, res) => {
 				from: 'webmaster@jacobsimonson.me',
 				to: email,
 				subject: 'Your Password was Reset',
-				html: `Hello,<br><br>Your password has been reset to:<br><b>${randpass}<b><br>You should probably change that to something you will remember.<br><br>Have a great day!`,
+				html: `Hello,<br><br>Your password has been reset to:<br><b>${randpass}</b><br>You should probably change that to something you will remember.<br><br>Have a great day!`,
 			}, (err, reply) => {
 				if (err) console.log(err)
 			})
 
 			res.sendStatus(200)
 		}
+	})
+})
+
+app.get('/invite', (req, res) => {
+	const email = req.query.email
+	const inviter = req.query.uid
+	const groupid = req.query.gid
+
+	connection.query(`insert into invitees (email, invite_id, group_id) values ('${email}', '${inviter}', '${groupid}');`, (err, results) => {
+		if (err) throw err
+
+		res.sendStatus(200)
 	})
 })
 
