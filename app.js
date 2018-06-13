@@ -109,13 +109,65 @@ app.get('/reset-pass', (req, res) => {
 
 app.get('/invite', (req, res) => {
 	const email = req.query.email
-	const inviter = req.query.uid
+	const userid = req.query.uid
 	const groupid = req.query.gid
 
-	connection.query(`insert into invitees (email, invite_id, group_id) values ('${email}', '${inviter}', '${groupid}');`, (err, results) => {
+	connection.query(`select user_id from users where email='${email}';`, (err, rows, fields) => {
 		if (err) throw err
 
-		res.sendStatus(200)
+		if (rows.length < 1) {
+			connection.query(`insert into invitees (email, invite_id, group_id) values ('${email}', '${userid}', '${groupid}');`, (err, results) => {
+				if (err) throw err
+
+				sendEmail()
+			})
+		}
+
+		else {
+			connection.query(`select group_id from memberships where user_id=${rows[0].user_id};`, (er, rs, fls) => {
+				if (er) throw er
+
+				if (rs.length < 1) return
+
+				for (let r of rs) {
+					if (r.group_id == groupid) {
+						res.sendStatus(400)
+						return
+					}
+				}
+
+				sendEmail()
+			})
+		}
+		
+		const sendEmail = () => {
+			let groupname = ''
+			let invitername = ''
+
+			connection.query(`select name from groups where group_id=${groupid};`, (error, rows, fields) => {
+				if (error) throw error
+
+				groupname = rows[0].name
+
+				connection.query(`select firstname, lastname from users where user_id=${userid};`, (error, rows, fields) => {
+					if (error) throw error
+
+					invitername = `${rows[0].firstname} ${rows[0].lastname}`
+
+					sendmail({
+						from: 'webmaster@jacobsimonson.me',
+						to: email,
+						subject: 'You\'re Invited to FriendGroup!',
+						html: `Hello,<br><br>You have been invited by ${invitername} to join the group ${groupname} on FriendGroup!<br><br>Have a nice day!`,
+					}, (err, reply) => {
+						if (err) console.log(err)
+					})
+
+					res.sendStatus(200)
+				})
+
+			})
+		}
 	})
 })
 
