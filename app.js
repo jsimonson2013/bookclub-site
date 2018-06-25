@@ -107,6 +107,16 @@ app.get('/reset-pass', (req, res) => {
 	})
 })
 
+const makeCode = () => {
+  let text = ""
+  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+  for (let i = 0; i < 10; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length))
+
+  return text
+}
+
 app.get('/invite', (req, res) => {
 	const email = req.query.email
 	const userid = req.query.uid
@@ -115,11 +125,13 @@ app.get('/invite', (req, res) => {
 	connection.query(`select user_id from users where email='${email}';`, (err, rows, fields) => {
 		if (err) throw err
 
+		const joinCode = makeCode()
+
 		if (rows.length < 1) {
-			connection.query(`insert into invitees (email, invite_id, group_id) values ('${email}', '${userid}', '${groupid}');`, (err, results) => {
+			connection.query(`insert into invitees (email, invite_id, group_id, code) values ('${email}', '${userid}', '${groupid}', '${joinCode}');`, (err, results) => {
 				if (err) throw err
 
-				sendEmail()
+				sendEmail(`You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a>`)
 			})
 		}
 
@@ -136,11 +148,15 @@ app.get('/invite', (req, res) => {
 					}
 				}
 
-				sendEmail()
+				connection.query(`insert into memberships (user_id, group_id) values (${userid}, ${groupid})`, (e, results) => {
+					if (e) throw e
+
+					sendEmail(`You have been automatically added to the group and can manage memberships from your profile.`)
+				})
 			})
 		}
 		
-		const sendEmail = () => {
+		const sendEmail = bodyExtra => {
 			let groupname = ''
 			let invitername = ''
 
@@ -158,7 +174,7 @@ app.get('/invite', (req, res) => {
 						from: 'webmaster@jacobsimonson.me',
 						to: email,
 						subject: 'You\'re Invited to FriendGroup!',
-						html: `Hello,<br><br>You have been invited by ${invitername} to join the group ${groupname} on FriendGroup!<br><br>Have a nice day!`,
+						html: `Hello,<br><br>You have been invited by ${invitername} to join the group ${groupname} on FriendGroup!<br><br>${bodyExtra}<br><br>Have a nice day!`,
 					}, (err, reply) => {
 						if (err) console.log(err)
 					})
