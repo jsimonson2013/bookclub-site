@@ -187,6 +187,16 @@ app.get('/invite', (req, res) => {
 	})
 })
 
+app.get('/create-profile', (req, res) => {
+	const code = req.query.code
+
+	connection.query(`select group_id from invitees where code='${code}'`, (err, rows, fields) => {
+		if (rows.length > 0) res.redirect('https://friendgroup.jacobsimonson.me')
+
+		else res.sendStatus(404)
+	})
+})
+
 app.post('/pass', (req, res) => {
 	const userid = req.body.user
 	const newpass = req.body.newpass
