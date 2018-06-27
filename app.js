@@ -61,6 +61,27 @@ app.get('/login', (req, res) => {
 	})
 })
 
+app.get('/signup', (req, res) => {
+	const first = req.query.first
+	const last = req.query.last
+	const email = req.query.email
+	const user = req.query.user
+	const pass = req.query.pass
+
+	connection.query(`insert into users (firstname, lastname, email, username, pass) values ('${first}', '${last}', '${email}', '${user}', AES_ENCRYPT('${pass}', '${process.argv[5]}'));`, (err, results) => {
+		if (err) throw err
+
+	//TODO: get group info
+
+		res.json({
+			url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html'
+			//uid: rows[0].user_id,
+			//gid: rows[0].default_group_id,
+			//gname: rows[0].name
+		})
+	})
+})
+
 app.get('/score', (req, res) => {
 	connection.query(`select score from users where firstname='${req.query.first}' and lastname='${req.query.last}';`, (err, rows, fields) => {
 		if (err) throw err
@@ -191,7 +212,11 @@ app.get('/create-profile', (req, res) => {
 	const code = req.query.code
 
 	connection.query(`select group_id from invitees where code='${code}'`, (err, rows, fields) => {
-		if (rows.length > 0) res.redirect('https://friendgroup.jacobsimonson.me')
+		if (rows.length > 0) {
+			res.cookie('GID', rows[0].group_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
+
+			res.redirect('https://friendgroup.jacobsimonson.me/html/create-profile.html')
+		}
 
 		else res.sendStatus(404)
 	})
