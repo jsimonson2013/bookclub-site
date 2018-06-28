@@ -42,10 +42,10 @@ app.get('/bypass', (req, res) => {
 })
 
 app.get('/login', (req, res) => {
-	connection.query(`select user_id, default_group_id, groups.name, cast(AES_DECRYPT(pass, '${process.argv[5]}') as char(255)) pass_decrypt from users inner join groups on groups.group_id=users.default_group_id WHERE username='${req.query.user}';`, (err, rows, fields) => {
+	connection.query(`select user_id, default_group_id, groups.name, cast(AES_DECRYPT(pass, '${process.argv[5]}') as char(255)) pass_decrypt from users inner join groups on groups.group_id=users.default_group_id WHERE email='${req.query.user}';`, (err, rows, fields) => {
 		if (err) throw err
 
-		if(!rows.length) res.send('OK')
+		if(!rows.length) res.sendStatus(404)
 
 		else if (rows[0].pass_decrypt == req.query.pass) {
 			res.cookie('UID', rows[0].user_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
@@ -57,7 +57,7 @@ app.get('/login', (req, res) => {
 			})
 		}
 
-		else res.send('OK')
+		else res.sendStatus(404)
 	})
 })
 
@@ -71,8 +71,10 @@ app.get('/signup', (req, res) => {
 	connection.query(`select default_group_id, groups.name, users.email, users.user_id from invitees inner join users on invitees.email=users.email inner join groups on users.default_group_id=groups.group_id where code='${code}';`, (error, rows, fields) => {
 		if (error) throw error
 
-		connection.query(`update users set firstname='${first}', lastname='${last}', pass=AES_ENCRYPT('${pass}', '${process.argv[5]}'), username='test' where email='${rows[0].email}';`, (err, results) => {
+		connection.query(`update users set firstname='${first}', lastname='${last}', pass=AES_ENCRYPT('${pass}', '${process.argv[5]}') where email='${rows[0].email}';`, (err, results) => {
 			if (err) throw err
+
+			res.cookie('UID', rows[0].user_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
 
 			res.json({
 				url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
