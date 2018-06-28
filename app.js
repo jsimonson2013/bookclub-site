@@ -62,22 +62,26 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/signup', (req, res) => {
+	const code = req.query.code
+
 	const first = req.query.first
 	const last = req.query.last
-	const email = req.query.email
-	const user = req.query.user
 	const pass = req.query.pass
 
-	connection.query(`insert into users (firstname, lastname, email, username, pass) values ('${first}', '${last}', '${email}', '${user}', AES_ENCRYPT('${pass}', '${process.argv[5]}'));`, (err, results) => {
-		if (err) throw err
+	connection.query(`select default_group_id, groups.name, users.email, users.user_id from invitees inner join users on invitees.email=users.email inner join groups on users.default_group_id=groups.group_id where code='${code}';`, (error, rows, fields) => {
+		if (error) throw error
 
-	//TODO: get group info
+		connection.query(`update users set firstname='${first}', lastname='${last}', pass=AES_ENCRYPT('${pass}', '${process.argv[5]}'), username='test' where email='${rows[0].email}';`, (err, results) => {
+			if (err) throw err
 
-		res.json({
-			url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html'
-			//uid: rows[0].user_id,
-			//gid: rows[0].default_group_id,
-			//gname: rows[0].name
+			res.json({
+				url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
+				uid: rows[0].user_id,
+				gid: rows[0].default_group_id,
+				gname: rows[0].name
+			})
+
+			connection.query(`insert into memberships (user_id, group_id) values ('${rows[0].user_id}', '${rows[0].default_group_id}');`, (e, rslts) => {if (e) throw e})
 		})
 	})
 })
@@ -152,7 +156,7 @@ app.get('/invite', (req, res) => {
 			connection.query(`insert into invitees (email, invite_id, group_id, code) values ('${email}', '${userid}', '${groupid}', '${joinCode}');`, (err, results) => {
 				if (err) throw err
 
-				sendEmail(`You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a>`)
+				sendEmail(`You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><br>${joinCode}`)
 			})
 		}
 
@@ -211,11 +215,13 @@ app.get('/invite', (req, res) => {
 app.get('/create-profile', (req, res) => {
 	const code = req.query.code
 
-	connection.query(`select group_id from invitees where code='${code}'`, (err, rows, fields) => {
+	connection.query(`select email, group_id from invitees where code='${code}'`, (err, rows, fields) => {
 		if (rows.length > 0) {
-			res.cookie('GID', rows[0].group_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
+			connection.query(`insert into users (email, default_group_id) values ('${rows[0].email}', '${rows[0].group_id}');`, (e, results) => {
+				if (e) throw e
 
-			res.redirect('https://friendgroup.jacobsimonson.me/html/create-profile.html')
+				res.redirect('https://friendgroup.jacobsimonson.me/html/create-profile.html')
+			})
 		}
 
 		else res.sendStatus(404)
