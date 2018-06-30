@@ -71,6 +71,11 @@ app.get('/signup', (req, res) => {
 	connection.query(`select default_group_id, groups.name, users.email, users.user_id from invitees inner join users on invitees.email=users.email inner join groups on users.default_group_id=groups.group_id where code='${code}';`, (error, rows, fields) => {
 		if (error) throw error
 
+		if (!rows[0]) {
+			res.sendStatus(404)
+			return
+		}
+
 		connection.query(`update users set firstname='${first}', lastname='${last}', pass=AES_ENCRYPT('${pass}', '${process.argv[5]}') where email='${rows[0].email}';`, (err, results) => {
 			if (err) throw err
 
@@ -84,6 +89,8 @@ app.get('/signup', (req, res) => {
 			})
 
 			connection.query(`insert into memberships (user_id, group_id) values ('${rows[0].user_id}', '${rows[0].default_group_id}');`, (e, rslts) => {if (e) throw e})
+
+			connection.query(`delete from invitees where code='${code}';`, (e, rslts) => {if (e) throw e})
 		})
 	})
 })
