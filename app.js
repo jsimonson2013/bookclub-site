@@ -161,7 +161,7 @@ app.get('/invite', (req, res) => {
 
 		const joinCode = makeCode()
 
-		if (rows.length < 1) {
+		if (!rows[0]) {
 			connection.query(`insert into invitees (email, invite_id, group_id, code) values ('${email}', '${userid}', '${groupid}', '${joinCode}');`, (err, results) => {
 				if (err) throw err
 
@@ -173,7 +173,10 @@ app.get('/invite', (req, res) => {
 			connection.query(`select group_id from memberships where user_id=${rows[0].user_id};`, (er, rs, fls) => {
 				if (er) throw er
 
-				if (rs.length < 1) return
+				if (!rs[0]){
+					res.sendStatus(400)
+					return
+				}
 
 				for (let r of rs) {
 					if (r.group_id == groupid) {
@@ -182,7 +185,7 @@ app.get('/invite', (req, res) => {
 					}
 				}
 
-				connection.query(`insert into memberships (user_id, group_id) values (${userid}, ${groupid})`, (e, results) => {
+				connection.query(`insert into memberships (user_id, group_id) values (${rows[0].user_id}, ${groupid})`, (e, results) => {
 					if (e) throw e
 
 					sendEmail(`You have been automatically added to the group and can manage memberships from your profile.`)
