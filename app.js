@@ -113,20 +113,39 @@ app.get('/increment-score', (req, res) => {
 	})
 })
 
+const makeCode = (length) => {
+  let text = ""
+  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+  for (let i = length; i < 10; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length))
+
+  return text
+}
+
+const sendEmail = (recipient, subject, body) => {
+	sendmail({
+		from: 'webmaster@jacobsimonson.me',
+		to: recipient,
+		subject: subject,
+		html: `Hello,<br><br>${body}<br><br>Have a nice day!`,
+	}, (err, reply) => {if (err) console.log(err)})
+}
+
 app.get('/reset-pass', (req, res) => {
 	const email = req.query.email
-
-	let randpass = ''
-	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-
-	for (let i = 0; i < 5; i++) randpass += possible.charAt(Math.floor(Math.random() * possible.length))
+	const randpass = makeCode(10)
 
 	connection.query(`update users set pass=AES_ENCRYPT('${randpass}', '${process.argv[5]}') where email='${email}';`, (err, results) => {
 		if (err) throw err
-
-		if (results.changedRows < 1) res.sendStatus(404)
+		console.log(results)
+		if (results.affectedRows < 1) res.sendStatus(404)
 
 		else {
+			const body = `Your password has been reset to:<br><b>${randpass}</b><br>You should probably change that to something you will remember.`
+
+			sendEmail(email, 'Your Password was Reset', body)
+			/*
 			sendmail({
 				from: 'webmaster@jacobsimonson.me',
 				to: email,
@@ -135,21 +154,12 @@ app.get('/reset-pass', (req, res) => {
 			}, (err, reply) => {
 				if (err) console.log(err)
 			})
+			*/
 
 			res.sendStatus(200)
 		}
 	})
 })
-
-const makeCode = () => {
-  let text = ""
-  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-
-  for (let i = 0; i < 10; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length))
-
-  return text
-}
 
 app.get('/invite', (req, res) => {
 	const email = req.query.email
@@ -159,7 +169,7 @@ app.get('/invite', (req, res) => {
 	connection.query(`select user_id from users where email='${email}';`, (err, rows, fields) => {
 		if (err) throw err
 
-		const joinCode = makeCode()
+		const joinCode = makeCode(10)
 
 		if (!rows[0]) {
 			connection.query(`insert into invitees (email, invite_id, group_id, code) values ('${email}', '${userid}', '${groupid}', '${joinCode}');`, (err, results) => {
@@ -168,7 +178,9 @@ app.get('/invite', (req, res) => {
 				connection.query(`insert into users (email, default_group_id) values ('${email}', '${groupid}');`, (e, r) => {
 					if (e) throw e
 
-					sendEmail(`You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><br>${joinCode}`)
+					const extra = `You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><br>${joinCode}`
+
+					handleSendEmail(extra)
 				})
 			})
 		}
@@ -192,12 +204,14 @@ app.get('/invite', (req, res) => {
 				connection.query(`insert into memberships (user_id, group_id) values (${rows[0].user_id}, ${groupid})`, (e, results) => {
 					if (e) throw e
 
-					sendEmail(`You have been automatically added to the group and can manage memberships from your profile.`)
+					const extra = `You have been automatically added to the group and can manage memberships from your profile.`
+
+					handleSendEmail(extra)
 				})
 			})
 		}
 		
-		const sendEmail = bodyExtra => {
+		const handleSendEmail = bodyExtra => {
 			let groupname = ''
 			let invitername = ''
 
@@ -211,6 +225,11 @@ app.get('/invite', (req, res) => {
 
 					invitername = `${rows[0].firstname} ${rows[0].lastname}`
 
+					const body = `You have been invited by ${invitername} to join the group ${groupname} on FriendGroup!<br><br>${bodyExtra}`
+
+					sendEmail(email, 'You\re Invited to FriendGroup!', body)
+
+					/*
 					sendmail({
 						from: 'webmaster@jacobsimonson.me',
 						to: email,
@@ -219,6 +238,7 @@ app.get('/invite', (req, res) => {
 					}, (err, reply) => {
 						if (err) console.log(err)
 					})
+					*/
 
 					res.sendStatus(200)
 				})
@@ -252,6 +272,10 @@ app.post('/pass', (req, res) => {
 		if (err) throw err
 
 		connection.query(`select email from users where user_id='${userid}';`, (err, rows, fields) => {
+			const body = 'Hello,<br><br>Just sending this email to let you know that you\'ve changed your password!<br><br>Have a great day!'
+
+			sendEmail(rows[0].email, 'Confirmation of Password Change', body)
+			/*
 			sendmail({
 				from: 'webmaster@jacobsimonson.me',
 				to: rows[0].email,
@@ -260,7 +284,7 @@ app.post('/pass', (req, res) => {
 			}, (err, reply) => {
 				if (err) console.log(err)
 			})
-
+			*/
 			res.sendStatus(200)
 		})
 	})
