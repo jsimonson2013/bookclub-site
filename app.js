@@ -117,7 +117,7 @@ const makeCode = (length) => {
   let text = ""
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
-  for (let i = length; i < 10; i++)
+  for (let i = 0; i < length; i++)
     text += possible.charAt(Math.floor(Math.random() * possible.length))
 
   return text
@@ -128,7 +128,7 @@ const sendEmail = (recipient, subject, body) => {
 		from: 'webmaster@jacobsimonson.me',
 		to: recipient,
 		subject: subject,
-		html: `Hello,<br><br>${body}<br><br>Have a nice day!`,
+		html: `Hello,<br><br>${body}<br><br>Have a nice day!<br><br><a href="https://friendgroup.jacobsimonson.me">Link to FriendGroup.</a>`,
 	}, (err, reply) => {if (err) console.log(err)})
 }
 
@@ -138,23 +138,13 @@ app.get('/reset-pass', (req, res) => {
 
 	connection.query(`update users set pass=AES_ENCRYPT('${randpass}', '${process.argv[5]}') where email='${email}';`, (err, results) => {
 		if (err) throw err
-		console.log(results)
+
 		if (results.affectedRows < 1) res.sendStatus(404)
 
 		else {
 			const body = `Your password has been reset to:<br><b>${randpass}</b><br>You should probably change that to something you will remember.`
 
 			sendEmail(email, 'Your Password was Reset', body)
-			/*
-			sendmail({
-				from: 'webmaster@jacobsimonson.me',
-				to: email,
-				subject: 'Your Password was Reset',
-				html: `Hello,<br><br>Your password has been reset to:<br><b>${randpass}</b><br>You should probably change that to something you will remember.<br><br>Have a great day!`,
-			}, (err, reply) => {
-				if (err) console.log(err)
-			})
-			*/
 
 			res.sendStatus(200)
 		}
@@ -178,7 +168,7 @@ app.get('/invite', (req, res) => {
 				connection.query(`insert into users (email, default_group_id) values ('${email}', '${groupid}');`, (e, r) => {
 					if (e) throw e
 
-					const extra = `You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><br>${joinCode}`
+					const extra = `You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><b>${joinCode}</b>`
 
 					handleSendEmail(extra)
 				})
@@ -227,18 +217,7 @@ app.get('/invite', (req, res) => {
 
 					const body = `You have been invited by ${invitername} to join the group ${groupname} on FriendGroup!<br><br>${bodyExtra}`
 
-					sendEmail(email, 'You\re Invited to FriendGroup!', body)
-
-					/*
-					sendmail({
-						from: 'webmaster@jacobsimonson.me',
-						to: email,
-						subject: 'You\'re Invited to FriendGroup!',
-						html: `Hello,<br><br>You have been invited by ${invitername} to join the group ${groupname} on FriendGroup!<br><br>${bodyExtra}<br><br>Have a nice day!`,
-					}, (err, reply) => {
-						if (err) console.log(err)
-					})
-					*/
+					sendEmail(email, 'You\'re Invited to FriendGroup!', body)
 
 					res.sendStatus(200)
 				})
@@ -275,16 +254,7 @@ app.post('/pass', (req, res) => {
 			const body = 'Hello,<br><br>Just sending this email to let you know that you\'ve changed your password!<br><br>Have a great day!'
 
 			sendEmail(rows[0].email, 'Confirmation of Password Change', body)
-			/*
-			sendmail({
-				from: 'webmaster@jacobsimonson.me',
-				to: rows[0].email,
-				subject: 'Confirmation of Password Change',
-				html: 'Hello,<br><br>Just sending this email to let you know that you\'ve changed your password!<br><br>Have a great day!',
-			}, (err, reply) => {
-				if (err) console.log(err)
-			})
-			*/
+
 			res.sendStatus(200)
 		})
 	})
