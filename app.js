@@ -165,7 +165,11 @@ app.get('/invite', (req, res) => {
 			connection.query(`insert into invitees (email, invite_id, group_id, code) values ('${email}', '${userid}', '${groupid}', '${joinCode}');`, (err, results) => {
 				if (err) throw err
 
-				sendEmail(`You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><br>${joinCode}`)
+				connection.query(`insert into users (email, default_group_id) values ('${email}', '${groupid}');`, (e, r) => {
+					if (e) throw e
+
+					sendEmail(`You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><br>${joinCode}`)
+				})
 			})
 		}
 
