@@ -179,25 +179,24 @@ app.get('/invite', (req, res) => {
 			connection.query(`select group_id from memberships where user_id=${rows[0].user_id};`, (er, rs, fls) => {
 				if (er) throw er
 
-				if (!rs[0]){
-					res.sendStatus(400)
-					return
-				}
+				if (!rs[0]) res.sendStatus(404)
 
-				for (let r of rs) {
-					if (r.group_id == groupid) {
-						res.sendStatus(400)
-						return
+				else {
+					for (let r of rs) {
+						if (r.group_id == groupid) {
+							res.sendStatus(404)
+							return
+						}
 					}
+
+					connection.query(`insert into memberships (user_id, group_id) values (${rows[0].user_id}, ${groupid})`, (e, results) => {
+						if (e) throw e
+
+						const extra = `You have been automatically added to the group and can manage memberships from your profile.`
+
+						handleSendEmail(extra)
+					})
 				}
-
-				connection.query(`insert into memberships (user_id, group_id) values (${rows[0].user_id}, ${groupid})`, (e, results) => {
-					if (e) throw e
-
-					const extra = `You have been automatically added to the group and can manage memberships from your profile.`
-
-					handleSendEmail(extra)
-				})
 			})
 		}
 		
@@ -209,16 +208,13 @@ app.get('/invite', (req, res) => {
 				if (error) throw error
 
 				groupname = rows[0].name
-
 				connection.query(`select firstname, lastname from users where user_id=${userid};`, (error, rows, fields) => {
 					if (error) throw error
 
 					invitername = `${rows[0].firstname} ${rows[0].lastname}`
-
 					const body = `You have been invited by ${invitername} to join the group ${groupname} on FriendGroup!<br><br>${bodyExtra}`
 
 					sendEmail(email, 'You\'re Invited to FriendGroup!', body)
-
 					res.sendStatus(200)
 				})
 
@@ -251,7 +247,7 @@ app.post('/pass', (req, res) => {
 		if (err) throw err
 
 		connection.query(`select email from users where user_id='${userid}';`, (err, rows, fields) => {
-			const body = 'Hello,<br><br>Just sending this email to let you know that you\'ve changed your password!<br><br>Have a great day!'
+			const body = 'Just sending this email to let you know that you\'ve changed your password!'
 
 			sendEmail(rows[0].email, 'Confirmation of Password Change', body)
 
