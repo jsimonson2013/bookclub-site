@@ -20,6 +20,16 @@ const sendEmail = (recipient, subject, body) => {
 }
 
 module.exports = {
+	changeDefault: (connection, req, res) => {
+		connection.query(`update users set default_group_id=${req.query.gid} where user_id=${req.query.uid};`, (err, results) => {
+			if (err) throw err
+
+			res.sendStatus(200)
+		})
+	},
+	createGroup: (connection, req, res) => {
+		//TODO		
+	},
 	createProfile: (connection, req, res) => {
 		const code = req.query.code
 
@@ -154,6 +164,9 @@ module.exports = {
 				})
 			}
 		})
+	},
+	leaveGroup: (connection, req, res) => {
+		//TODO
 	},
 	resetPass: (connection, req, res) => {
 		const email = req.query.email

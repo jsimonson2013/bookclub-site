@@ -31,12 +31,20 @@ app.get('/bypass', (req, res) => {
 	login.bypass(connection, req, res)
 })
 
+app.get('/change-group', (req, res) => {
+	user.changeDefault(connection, req, res)
+})
+
 app.get('/comments', (req, res) => {
 	post.getComments(connection, req, res)
 })
 
 app.post('/comments', (req, res) => {
 	post.newComment(connection, req, res)
+})
+
+app.get('/create-group', (req, res) => {
+	user.newGroup(connection, req, res)
 })
 
 app.get('/create-profile', (req, res) => {
@@ -63,6 +71,10 @@ app.get('/increment-score', (req, res) => {
 
 app.get('/invite', (req, res) => {
 	user.invite(connection, req, res)
+})
+
+app.get('/leave-group', (req, res) => {
+	user.leaveGroup(connection, req, res)
 })
 
 app.get('/login', (req, res) => {
