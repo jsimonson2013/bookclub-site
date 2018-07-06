@@ -191,7 +191,11 @@ module.exports = {
 		})
 	},
 	leaveGroup: (connection, req, res) => {
-		//TODO
+		connection.query(`delete from memberships where user_id=${req.query.uid} and group_id=${req.query.gid};`, (err, results) => {
+			if (err) throw err
+
+			res.sendStatus(200)
+		})
 	},
 	resetPass: (connection, req, res) => {
 		const email = req.query.email
