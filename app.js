@@ -44,7 +44,7 @@ app.post('/comments', (req, res) => {
 })
 
 app.get('/create-group', (req, res) => {
-	user.newGroup(connection, req, res)
+	user.createGroup(connection, req, res)
 })
 
 app.get('/create-profile', (req, res) => {

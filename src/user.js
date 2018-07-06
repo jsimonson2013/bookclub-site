@@ -28,7 +28,23 @@ module.exports = {
 		})
 	},
 	createGroup: (connection, req, res) => {
-		//TODO		
+		connection.query(`insert into groups (name) values ('${req.query.name}');`, (err, results) => {
+			if (err) throw err
+
+			connection.query(`select group_id from groups where name='${req.query.name}';`, (e, rows, fields) => {
+				if (e) throw e
+
+				connection.query(`insert into memberships (group_id, user_id) values (${rows[0].group_id}, ${req.query.uid});`, (e, r) => {
+					if (e) throw e
+
+					res.json({
+						'gid': rows[0].group_id,
+						'gname': req.query.name 
+					})
+
+				})
+			})
+		})	
 	},
 	createProfile: (connection, req, res) => {
 		const code = req.query.code
@@ -197,8 +213,6 @@ module.exports = {
 				const body = 'Just sending this email to let you know that you\'ve changed your password!'
 
 				sendEmail(rows[0].email, 'Confirmation of Password Change', body)
-
-				res.sendStatus(200)
 			})
 		})
 	}
