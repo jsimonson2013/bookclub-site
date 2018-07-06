@@ -61,6 +61,15 @@ module.exports = {
 			else res.sendStatus(404)
 		})
 	},
+	defaultGroup: (connection, req, res) => {
+		connection.query(`select default_group_id from users where user_id=${req.query.uid};`, (err, rows, fields) => {
+			if (err) throw err
+
+			res.json({
+				'gid': rows[0].default_group_id
+			})
+		})
+	},
 	getGroups: (connection, req, res) => {
 		connection.query(`select name, groups.group_id from memberships inner join groups on memberships.group_id=groups.group_id where user_id=${req.query.user_id};`, (err, rows, fields) => {
 			if (err) throw err

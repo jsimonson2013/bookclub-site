@@ -51,6 +51,10 @@ app.get('/create-profile', (req, res) => {
 	user.createProfile(connection, req, res)
 })
 
+app.get('/default-group', (req, res) => {
+	user.defaultGroup(connection, req, res)
+})
+
 app.get('/feed', (req, res) => {
 	connection.query(`select content, post_id, link, author, date from posts where group_id=${req.query.group_id} and parent_id is NULL and DATE(date) < DATE('${req.query.start_date}') order by DATE(date) desc limit 10;`, (err, rows, fields) => {
 		if (err) throw err
