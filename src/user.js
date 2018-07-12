@@ -50,13 +50,7 @@ module.exports = {
 		const code = req.query.code
 
 		connection.query(`select email, group_id from invitees where code='${code}'`, (err, rows, fields) => {
-			if (rows.length > 0) {
-				connection.query(`insert into users (email, default_group_id) values ('${rows[0].email}', '${rows[0].group_id}');`, (e, results) => {
-					if (e) throw e
-
-					res.redirect('https://friendgroup.jacobsimonson.me/html/create-profile.html')
-				})
-			}
+			if (rows.length > 0) res.redirect('https://friendgroup.jacobsimonson.me/html/create-profile.html')
 
 			else res.sendStatus(404)
 		})
@@ -135,7 +129,7 @@ module.exports = {
 
 					connection.query(`insert into users (email, default_group_id) values ('${email}', '${groupid}');`, (e, r) => {
 						if (e) throw e
-
+	
 						const extra = `You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><b>${joinCode}</b>`
 
 						handleSendEmail(extra)
