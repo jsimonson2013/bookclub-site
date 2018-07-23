@@ -2,7 +2,5 @@ node_modules/
 package-lock.json
 db.txt
 
-setup.js
-
 # Stupid powershell vim files
 *~
