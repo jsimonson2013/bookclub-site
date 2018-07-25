@@ -13,7 +13,7 @@ testLogin = new Promise((resolve, reject) => {
 })
 
 testByPass = new Promise((resolve, reject) => {
-	fetch('http://localhost:3000/bypass/?user=3', {method: 'GET'})
+	fetch('http://localhost:3000/bypass/?user=1', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(false)
