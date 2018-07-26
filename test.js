@@ -12,8 +12,18 @@ testLogin = new Promise((resolve, reject) => {
 	})
 })
 
-testByPass = new Promise((resolve, reject) => {
+testBypass = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/bypass/?user=1', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(false)
+
+		reject()
+	})
+})
+
+testSignup = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/signup/?code=code123&first=test&last=mcprofile&pass=pass', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(false)
@@ -25,8 +35,9 @@ testByPass = new Promise((resolve, reject) => {
 runtests = () => {
 	const tests = []
 
-	tests.push(testByPass)
+	tests.push(testBypass)
 	tests.push(testLogin)
+	tests.push(testSignup)
 
 	Promise.all(tests).then((res) => {
 		console.log(res)

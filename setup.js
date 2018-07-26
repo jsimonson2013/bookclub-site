@@ -106,6 +106,14 @@ if (createDB){
 
 			return
 		})
+
+		conn.query(`insert into invitees (email, code, group_id) values('test', 'code123', 1);`, (err, results) => {
+			if (err) throw err
+
+			console.log('inserted test invitee')
+
+			return
+		})
 	}
 
 	conn.query('create table if not exists votes (vote_id int(11) not null auto_increment, post_id int(11), user_id int(11), primary key (vote_id) );', (err, res) => {
