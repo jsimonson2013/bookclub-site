@@ -1,5 +1,7 @@
 const iso = require('isomorphic-fetch')
 
+const setup = require('./setup.js')
+
 console.log('=============================TESTING STARTED==========================\n\n')
 
 testLogin = new Promise((resolve, reject) => {
@@ -48,4 +50,6 @@ runtests = () => {
 
 }
 
-runtests()
+setup.setup.then(() => {
+	runtests()
+})
