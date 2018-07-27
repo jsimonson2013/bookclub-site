@@ -11,8 +11,8 @@ module.exports = {
 		const createDB = new Promise((resolve, reject) => {
 			conn.query('create database if not exists friendgroup_test;', (err, res) => {
 				if (err) throw err
-				resolve(true)
 			})
+			resolve(true)
 		})
 
 		createDB.then(() => {
@@ -28,6 +28,7 @@ module.exports = {
 			const groupDrop = new Promise((resolve, reject) => {
 				conn.query('drop table if exists groups;', (err, res) => {
 					if (err) throw err
+					console.log('groups dropped')
 					resolve(true)
 				})
 			})
@@ -36,6 +37,7 @@ module.exports = {
 			const inviteeDrop = new Promise((resolve, reject) => {
 				conn.query('drop table if exists invitees;', (err, res) => {
 					if (err) throw err
+					console.log('invitees dropped')
 					resolve(true)
 				})
 			})
@@ -44,6 +46,7 @@ module.exports = {
 			const membershipDrop = new Promise((resolve, reject) => {
 				conn.query('drop table if exists memberships;', (err, res) => {
 					if (err) throw err
+					console.log('memberships dropped')
 					resolve(true)
 				})
 			})
@@ -52,6 +55,7 @@ module.exports = {
 			const postDrop = new Promise((resolve, reject) =>  {
 				conn.query('drop table if exists posts;', (err, res) => {
 					if (err) throw err
+					console.log('posts dropped')
 					resolve(true)
 				})
 			})
@@ -60,6 +64,7 @@ module.exports = {
 			const userDrop = new Promise((resolve, reject) => {
 				conn.query('drop table if exists users;', (err, res) => {
 					if (err) throw err
+					console.log('users dropped')
 					resolve(true)
 				})
 			})
@@ -68,6 +73,7 @@ module.exports = {
 			const voteDrop = new Promise((resolve, reject) => {
 				conn.query('drop table if exists votes;', (err, res) => {
 					if (err) throw err
+					console.log('votes dropped')
 					resolve(true)
 				})
 			})
@@ -79,6 +85,7 @@ module.exports = {
 				const groupCreate = new Promise((resolve, reject) => {
 					conn.query('create table if not exists groups (group_id int(11) auto_increment, name varchar(255) default null, primary key (group_id) );', (err, res) => {
 						if (err) throw err
+						console.log('groups created')
 						resolve(true)
 					})
 				})
@@ -87,7 +94,8 @@ module.exports = {
 				const inviteeCreate = new Promise((resolve, reject) => {
 					conn.query('create table if not exists invitees (id int(11) not null auto_increment, email varchar(255) default null, invite_id int(11), group_id int(11), code varchar(255), primary key (id) );', (err, res) => {
 						if (err) throw err
-						resolve(true)
+						console.log('invitees created')
+						resolve(true)	
 					})
 				})
 				promises.push(inviteeCreate)
@@ -95,6 +103,7 @@ module.exports = {
 				const membershipCreate = new Promise((resolve, reject) => {
 					conn.query('create table if not exists memberships (membership_id int(11) not null auto_increment, group_id int(11), user_id int(11), primary key (membership_id) );', (err, res) => {
 						if (err) throw err
+						console.log('memberships created')
 						resolve(true)
 					})
 				})
@@ -103,6 +112,7 @@ module.exports = {
 				const postCreate = new Promise((resolve, reject) => {
 					conn.query('create table if not exists posts (post_id int(11) not null auto_increment, poster_group int(11), content varchar(1024), author varchar(255), link varchar(255), parent_id int(11), votes varchar(256), group_id int(11), date datetime, copy varchar(255), primary key (post_id) );', (err, res) => {
 						if (err) throw err
+						console.log('posts created')
 						resolve(true)
 					})
 				})
@@ -111,6 +121,7 @@ module.exports = {
 				const voteCreate = new Promise((resolve, reject) => {
 					conn.query('create table if not exists votes (vote_id int(11) not null auto_increment, post_id int(11), user_id int(11), primary key (vote_id) );', (err, res) => {
 						if (err) throw err
+						console.log('votes created')
 						resolve(true)
 					})
 				})
@@ -119,6 +130,7 @@ module.exports = {
 				const userCreate = new Promise((resolve, reject) => {
 					conn.query('create table if not exists users (user_id int(11) not null auto_increment, firstname varchar(16), lastname varchar(32), email varchar(32), pass varbinary(255), score int(11) default 0, default_group_id int(11), primary key (user_id) );', (err, res) => {
 						if (err) throw err
+						console.log('users created')
 						resolve(true)
 					})
 				})
@@ -130,6 +142,7 @@ module.exports = {
 					const userAdd = new Promise((resolve, reject) => {
 						conn.query(`insert into users (email, pass, default_group_id) values('test', AES_ENCRYPT('pass', 'pass'), 1);`, (err, results) => {
 							if (err) throw err
+							console.log('user added')
 							resolve(true)
 						})
 					})
@@ -138,6 +151,7 @@ module.exports = {
 					const groupAdd = new Promise((resolve, reject) => {
 						conn.query(`insert into groups (name) values('test');`, (err, results) => {
 							if (err) throw err
+							console.log('group added')
 							resolve(true)
 						})
 					})
@@ -146,6 +160,7 @@ module.exports = {
 					const inviteeAdd = new Promise((resolve, reject) => {
 						conn.query(`insert into invitees (email, code, group_id) values('test', 'code123', 1);`, (err, results) => {
 							if (err) throw err
+							console.log('invitee added')
 							resolve(true)
 						})
 					})
@@ -159,3 +174,5 @@ module.exports = {
 		})
 	})
 }
+
+module.exports.setup.then(() => {process.exit()})
