@@ -139,14 +139,23 @@ module.exports = {
 				Promise.all(promises).then(() => {
 					promises = []
 
-					const userAdd = new Promise((resolve, reject) => {
+					const userAdd1 = new Promise((resolve, reject) => {
 						conn.query(`insert into users (email, pass, default_group_id) values('test', AES_ENCRYPT('pass', 'pass'), 1);`, (err, results) => {
 							if (err) throw err
 							console.log('user added')
 							resolve(true)
 						})
 					})
-					promises.push(userAdd)
+					promises.push(userAdd1)
+
+					const userAdd2 = new Promise((resolve, reject) => {
+						conn.query(`insert into users (email, firstname, lastname, pass, default_group_id) values('email', 'chester', 'mcprofile', AES_ENCRYPT('pass', 'pass'), 1);`, (err, results) => {
+							if (err) throw err
+							console.log('user added')
+							resolve(true)
+						})
+					})
+					promises.push(userAdd2)
 
 					const groupAdd = new Promise((resolve, reject) => {
 						conn.query(`insert into groups (name) values('test');`, (err, results) => {
@@ -157,14 +166,50 @@ module.exports = {
 					})
 					promises.push(groupAdd)
 
-					const inviteeAdd = new Promise((resolve, reject) => {
+					const inviteeAdd1 = new Promise((resolve, reject) => {
 						conn.query(`insert into invitees (email, code, group_id) values('test', 'code123', 1);`, (err, results) => {
 							if (err) throw err
 							console.log('invitee added')
 							resolve(true)
 						})
 					})
-					promises.push(inviteeAdd)
+					promises.push(inviteeAdd1)
+
+					const inviteeAdd2 = new Promise((resolve, reject) => {
+						conn.query(`insert into invitees (email, code, group_id) values('test', 'code456', 1);`, (err, results) => {
+							if (err) throw err
+							console.log('invitee added')
+							resolve(true)
+						})
+					})
+					promises.push(inviteeAdd2)
+
+					const membershipAdd = new Promise((resolve, reject) => {
+						conn.query(`insert into memberships (user_id, group_id) values(1, 1);`, (err, results) => {
+							if (err) throw err
+							console.log('membership added')
+							resolve(true)
+						})
+					})
+					promises.push(membershipAdd)
+
+					const postAdd = new Promise((resolve, reject) => {
+						conn.query(`insert into posts (content, group_id, date, author, link) values('hello, world!', 1, '1970-01-01', 'chester mcprofile', 'https://jacobsimonson.me');`, (err, results) => {
+							if (err) throw err
+							console.log('post added')
+							resolve(true)
+						})
+					})
+					promises.push(postAdd)
+
+					const voteAdd = new Promise((resolve, reject) => {
+						conn.query(`insert into votes (post_id, user_id) values(1, 1);`, (err, results) => {
+							if (err) throw err
+							console.log('vote added')
+							resolve(true)
+						})
+					})
+					promises.push(voteAdd)
 
 					Promise.all(promises).then(() => {
 						resolve(true)

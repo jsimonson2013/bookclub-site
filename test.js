@@ -6,7 +6,7 @@ const testLogin = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/login/?user=test&pass=pass', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
-		else resolve(false)
+		else resolve(res)
 	})
 })
 
@@ -14,7 +14,7 @@ const testBypass = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/bypass/?user=1', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
-		else resolve(false)
+		else resolve(res)
 	})
 })
 
@@ -30,7 +30,55 @@ const testCreateGroup = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/create-group/?name=group1&uid=1', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
-		else resolve(false)
+		else resolve(res)
+	})
+})
+
+const testChangeGroup = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/change-group/?gid=1&uid=1', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testCreateProfile = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/create-profile/?code=code456', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testGetGroups = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/groups/?user_id=1', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testGetProfile = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/profile/?user_id=1', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testGetScore = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/score/?first=chester&last=mcprofile', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testGetVotes = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/votes/?post_id=1&user_id=1', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
 	})
 })
 
@@ -40,7 +88,16 @@ const runtests = () => {
 	tests.push(testBypass)
 	tests.push(testLogin)
 	tests.push(testSignup)
+
 	tests.push(testCreateGroup)
+	tests.push(testChangeGroup)
+	tests.push(testGetGroups)
+
+	tests.push(testCreateProfile)
+	tests.push(testGetProfile)
+	tests.push(testGetScore)
+
+	tests.push(testGetVotes)
 
 	Promise.all(tests).then((res) => {
 		console.log(res)

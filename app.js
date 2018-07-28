@@ -27,22 +27,39 @@ app.listen(3000, () => {
 	console.log('App listening on port 3000!')
 })
 
+/**
+ * Bypasses login call. This is called if the client has a cookie with the 
+ * user id stored.
+ */
 app.get('/bypass', (req, res) => {
 	login.bypass(connection, req, res)
 })
 
+/**
+ * Changes the users default group.
+ */
 app.get('/change-group', (req, res) => {
 	user.changeDefault(connection, req, res)
 })
 
+/**
+ * Gets comments for a post using the post as the parent to search among other
+ * posts that could be comments.
+ */
 app.get('/comments', (req, res) => {
 	post.getComments(connection, req, res)
 })
 
+/**
+ * Post a new comment - a special type of post.
+ */
 app.post('/comments', (req, res) => {
 	post.newComment(connection, req, res)
 })
 
+/**
+ * Creates a new group.
+ */
 app.get('/create-group', (req, res) => {
 	user.createGroup(connection, req, res)
 })
