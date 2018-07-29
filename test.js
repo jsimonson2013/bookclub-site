@@ -50,8 +50,24 @@ const testCreateProfile = new Promise((resolve, reject) => {
 	})
 })
 
+const testResetPass = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/reset-pass/?email=email', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
 const testGetGroups = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/groups/?user_id=1', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testLeaveGroup = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/leave-group/?uid=2&gid=1', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(res)
@@ -74,6 +90,14 @@ const testGetScore = new Promise((resolve, reject) => {
 	})
 })
 
+const testIncrementScore = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/increment-score/?uid=1', {method: 'GET'})
+	.then(res => {
+		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
 const testGetVotes = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/votes/?post_id=1&user_id=1', {method: 'GET'})
 	.then(res => {
@@ -89,17 +113,22 @@ const runtests = () => {
 	tests.push(testLogin)
 	tests.push(testSignup)
 
+	tests.push(testResetPass)
+
 	tests.push(testCreateGroup)
 	tests.push(testChangeGroup)
 	tests.push(testGetGroups)
+	tests.push(testLeaveGroup)
 
 	tests.push(testCreateProfile)
 	tests.push(testGetProfile)
 	tests.push(testGetScore)
+	tests.push(testIncrementScore)
 
 	tests.push(testGetVotes)
 
 	Promise.all(tests).then((res) => {
+		console.log(`${res.length} tests ran with the following results:\n`)
 		console.log(res)
 		console.log('\n\n=============================TESTING ENDED============================')
 
