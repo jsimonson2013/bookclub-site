@@ -47,10 +47,9 @@ const insertPost = (connection, type, params) => {
 
 		connection.query(queryString, (err, result) => {
 			if (err) throw err
-
-			return true
 		})
 	})
+	return true
 }
 
 module.exports = {

@@ -211,6 +211,15 @@ module.exports = {
 					})
 					promises.push(postAdd)
 
+					const commentAdd = new Promise((resolve, reject) => {
+						conn.query(`insert into posts (content, group_id, date, author, parent_id) values('hello, moon!', 1, '1970-01-01', 'chester mcprofile', 1);`, (err, results) => {
+							if (err) throw err
+							console.log('comment added')
+							resolve(true)
+						})
+					})
+					promises.push(commentAdd)
+
 					const voteAdd = new Promise((resolve, reject) => {
 						conn.query(`insert into votes (post_id, user_id) values(1, 1);`, (err, results) => {
 							if (err) throw err

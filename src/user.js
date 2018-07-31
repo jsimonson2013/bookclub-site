@@ -220,6 +220,8 @@ module.exports = {
 				const body = 'Just sending this email to let you know that you\'ve changed your password!'
 
 				sendEmail(rows[0].email, 'Confirmation of Password Change', body)
+
+				res.sendStatus(200)
 			})
 		})
 	}

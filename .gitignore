@@ -4,3 +4,4 @@ db.txt
 
 # Stupid powershell vim files
 *~
+*.swp
