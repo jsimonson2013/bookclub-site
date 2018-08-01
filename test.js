@@ -10,10 +10,50 @@ const testLogin = new Promise((resolve, reject) => {
 	})
 })
 
+const testLoginBadPass = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/login/?user=test&pass=notpass', {method: 'GET'})
+	.then(res => {
+		if (res.status === 404) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testLoginBadUser = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/login/?user=nottest&pass=pass', {method: 'GET'})
+	.then(res => {
+		if (res.status === 404) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testLoginNoArgs = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/login/', {method: 'GET'})
+	.then(res => {
+		if (res.status === 404) resolve(true)
+		else resolve(res)
+	})
+})
+
 const testBypass = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/bypass/?user=1', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testBypassBadUser = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/bypass/?user=100', {method: 'GET'})
+	.then(res => {
+		if (res.status === 404) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testBypassNoArgs = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/bypass/', {method: 'GET'})
+	.then(res => {
+		if (res.status === 404) resolve(true)
 		else resolve(res)
 	})
 })
@@ -181,10 +221,16 @@ const testPostVote = new Promise((resolve, reject) => {
 const runtests = () => {
 	const tests = []
 
-	tests.push(testBypass)
 	tests.push(testLogin)
-	tests.push(testSignup)
+	tests.push(testLoginBadPass)
+	tests.push(testLoginBadUser)
+	tests.push(testLoginNoArgs)
 
+	tests.push(testBypass)
+	tests.push(testBypassBadUser)
+	tests.push(testBypassNoArgs)
+
+	tests.push(testSignup)
 	tests.push(testResetPass)
 	tests.push(testPostPass)
 

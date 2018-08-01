@@ -22,7 +22,7 @@ module.exports = {
 		connection.query(`select user_id, default_group_id, groups.name from users inner join groups on groups.group_id=users.default_group_id WHERE user_id='${req.query.user}';`, (err, rows, fields) => {
 			if (err) throw err
 
-			if(!rows.length) res.send('OK')
+			if(!rows.length) res.sendStatus(404)
 
 			else {
 				res.json({
