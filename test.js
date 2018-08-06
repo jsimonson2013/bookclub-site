@@ -5,7 +5,11 @@ console.log('=============================TESTING STARTED=======================
 const testLogin = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/login/?user=test&pass=pass', {method: 'GET'})
 	.then(res => {
-		if (res.status === 200) resolve(true)
+		if (res.status === 200) return res.json()
+		else resolve(res)
+	})
+	.then(res => {
+		if (res.uid == 1 && res.gid == 1 && res.gname == 'test' && res.url == 'https://friendgroup.jacobsimonson.me/html/feed-template.html') resolve(true)
 		else resolve(res)
 	})
 })
@@ -37,7 +41,11 @@ const testLoginNoArgs = new Promise((resolve, reject) => {
 const testBypass = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/bypass/?user=1', {method: 'GET'})
 	.then(res => {
-		if (res.status === 200) resolve(true)
+		if (res.status === 200) return res.json()
+		else resolve(res)
+	})
+	.then(res => {
+		if (res.uid == 1 && res.gid == 1 && res.gname == 'test' && res.url == 'https://friendgroup.jacobsimonson.me/html/feed-template.html') resolve(true)
 		else resolve(res)
 	})
 })
@@ -61,7 +69,27 @@ const testBypassNoArgs = new Promise((resolve, reject) => {
 const testSignup = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/signup/?code=code123&first=test&last=mcprofile&pass=pass', {method: 'GET'})
 	.then(res => {
-		if (res.status === 200) resolve(true)
+		if (res.status === 200) return res.json()
+		else resolve(res)
+	})
+	.then(res => {
+		if (res.uid == 1 && res.gid == 1 && res.gname == 'test' && res.url == 'https://friendgroup.jacobsimonson.me/html/feed-template.html') resolve(true)
+		else resolve(res)
+	})
+})
+
+const testSignupBadCode = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/signup/?code=test123&first=test&last=mcprofile&pass=pass', {method: 'GET'})
+	.then(res => {
+		if (res.status === 404) resolve(true)
+		else resolve(res)
+	})
+})
+
+const testSignupMissingArgs = new Promise((resolve, reject) => {
+	fetch('http://localhost:3000/signup/?code=code12', {method: 'GET'})
+	.then(res => {
+		if (res.status === 404) resolve(true)
 		else resolve(res)
 	})
 })
@@ -69,7 +97,11 @@ const testSignup = new Promise((resolve, reject) => {
 const testCreateGroup = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/create-group/?name=group1&uid=1', {method: 'GET'})
 	.then(res => {
-		if (res.status === 200) resolve(true)
+		if (res.status === 200) return res.json()
+		else resolve(res)
+	})
+	.then(res => {
+		if (res.gid == 2 && res.gname == 'group1') resolve(true)
 		else resolve(res)
 	})
 })
@@ -85,7 +117,7 @@ const testChangeGroup = new Promise((resolve, reject) => {
 const testCreateProfile = new Promise((resolve, reject) => {
 	fetch('http://localhost:3000/create-profile/?code=code456', {method: 'GET'})
 	.then(res => {
-		if (res.status === 200) resolve(true)
+		if (res.url === 'https://friendgroup.jacobsimonson.me/html/create-profile.html') resolve(true)
 		else resolve(res)
 	})
 })
@@ -231,6 +263,9 @@ const runtests = () => {
 	tests.push(testBypassNoArgs)
 
 	tests.push(testSignup)
+	tests.push(testSignupBadCode)
+	tests.push(testSignupMissingArgs)
+
 	tests.push(testResetPass)
 	tests.push(testPostPass)
 
