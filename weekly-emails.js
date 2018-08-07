@@ -11,8 +11,6 @@ const connection = mysql.createConnection({
 })
 
 const sendEmail = (recipient, subject, body) => {
-	if (recipient != 'jsimonson2013@gmail.com') return
-
 	sendmail({
 		from: 'webmaster@jacobsimonson.me',
 		to: recipient,
@@ -65,19 +63,19 @@ const groupPostsByUsers = promises => {
 	})
 }
 
-// TODO: Exit after...
 const sendEmails = promises => {
 	Promise.all(promises).then(groups => {
 		for (let emails of groups) {
 			for (let email of emails) {
-				let body = '<p>Here is a list of the top posts in your default group:</p><ul>'
+				let body = `<p>Here is a list of the top posts in ${email.posts[0].gname}:</p><ul>`
 				for (let post of email.posts) {
-					body = body + '<li>'+post.author+' wrote "'+post.content+'" in '+post.gname+'!</li>'
+					body = body + '<li>'+post.author+' wrote "'+post.content+'"</li>'
 				}
 				sendEmail(email.email, 'FriendGroup Top Posts this Week!', body + '</ul><p>To check these out follow the link at the bottom of this email.</p>')
 			}
 		}
 	})
+	setTimeout(() => {process.exit()}, 10000)
 }
 
 getTopPosts()
