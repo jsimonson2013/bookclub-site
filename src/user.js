@@ -124,7 +124,7 @@ module.exports = {
 			const joinCode = makeCode(10)
 
 			if (!rows[0]) {
-				connection.query(`insert into invitees (email, invite_id, group_id, code) values ('${email}', '${userid}', '${groupid}', '${joinCode}');`, (err, results) => {
+				connection.query(`insert into invitees (email, invite_id, group_id, code, expiration) values ('${email}', '${userid}', '${groupid}', '${joinCode}', now() + interval 1 week);`, (err, results) => {
 					if (err) throw err
 
 					connection.query(`insert into users (email, default_group_id) values ('${email}', '${groupid}');`, (e, r) => {

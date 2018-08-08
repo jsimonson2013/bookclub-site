@@ -40,6 +40,18 @@ const getInvitees = () => {
 				connection.query(`delete from invitees where email="${row.email}";`, (err, results) => {
 					if (err) throw err
 				})
+
+				connection.query(`select user_id from users where email="${row.email}";`, (err, rows, fields) => {
+					if (err) throw err
+
+					connection.query(`delete from memberships where user_id=${rows[0].user_id};`, (err, results) => {
+						if (err) throw err
+
+						connection.query(`delete from users where user_id=${rows[0].user_id};`, err, results) => {
+							if (err) throw err
+						})
+					})
+				})
 			}
 		}
 	})
