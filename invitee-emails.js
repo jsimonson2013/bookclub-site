@@ -20,10 +20,28 @@ const sendEmail = (recipient, subject, body) => {
 }
 
 const getInvitees = () => {
-	connection.query(`select email, expiration from invitees;`, (err, rows, fields) => {
+	connection.query(`select email, code, expiration from invitees;`, (err, rows, fields) => {
 		if (err) throw err
 
-		console.log(rows)
+		const now = new Date(Date.now())
+
+		const later = new Date(Date.now())
+		later.setDate(later.getDate() + 2);
+
+		for (let row of rows) {
+			if (new Date(later.toISOString()) > new Date(row.expiration)) {
+				sendEmail(row.email, 'Your FriendGroup Invite is Expiring Soon!', `
+					<p>Your invite will expire on ${row.expiration.toString().substring(0, 15)}!</p>
+					<p>You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${row.code}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><b>${row.code}</b></p>
+				`)
+			}
+
+			if (new Date(now.toISOString()) > new Date(row.expiration)) {
+				connection.query(`delete from invitees where email="${row.email}";`, (err, results) => {
+					if (err) throw err
+				})
+			}
+		}
 	})
 
 	setTimeout(() => {process.exit()}, 10000)
