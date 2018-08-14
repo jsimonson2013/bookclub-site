@@ -56,7 +56,7 @@ module.exports = {
 		})
 	},
 	defaultGroup: (connection, req, res) => {
-		connection.query(`select default_group_id from users where user_id=${req.query.uid};`, (err, rows, fields) => {
+		connection.query(`select default_group_id from users where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			res.json({
@@ -65,7 +65,7 @@ module.exports = {
 		})
 	},
 	getGroups: (connection, req, res) => {
-		connection.query(`select name, groups.group_id from memberships inner join groups on memberships.group_id=groups.group_id where user_id=${req.query.user_id};`, (err, rows, fields) => {
+		connection.query(`select name, groups.group_id from memberships inner join users on memberships.user_id=users.user_id inner join groups on memberships.group_id=groups.group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			if (rows.length < 1) {
@@ -77,7 +77,7 @@ module.exports = {
 		})
 	},
 	getProfile: (connection, req, res) => {
-		connection.query(`select * from users where user_id='${req.query.user_id}';`, (err, rows, fields) => {
+		connection.query(`select * from users where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			if(rows.length < 1) return
