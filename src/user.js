@@ -129,7 +129,7 @@ module.exports = {
 
 					let random_user_id = makeCode(12)
 
-					connection.query(`insert into users (email, default_group_id, unique_user_id) values ('${email}', '${groupid}', AES_ENCRYPT('${random_user_id}', '${process.argv[5]'));`, (e, r) => {
+					connection.query(`insert into users (email, default_group_id, unique_user_id) values ('${email}', '${groupid}', AES_ENCRYPT('${random_user_id}', '${process.argv[5]}'));`, (e, r) => {
 						if (e) throw e
 	
 						const extra = `You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><b>${joinCode}</b>`
