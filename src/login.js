@@ -1,15 +1,15 @@
 module.exports = {
 	login: (connection, req, res) => {
-		connection.query(`select user_id, default_group_id, groups.name, cast(AES_DECRYPT(pass, '${process.argv[5]}') as char(255)) pass_decrypt from users inner join groups on groups.group_id=users.default_group_id WHERE email='${req.query.user}';`, (err, rows, fields) => {
+		connection.query(`select user_id, default_group_id, groups.name, cast(AES_DECRYPT(pass, '${process.argv[5]}') as char(255)) pass_decrypt, cast(AES_DECRYPT(unique_user_id, '${process.argv[5]}') as char(256)) uniq_decrypt from users inner join groups on groups.group_id=users.default_group_id WHERE email='${req.query.user}';`, (err, rows, fields) => {
 			if (err) throw err
 
 			if(!rows.length) res.sendStatus(404)
 
 			else if (rows[0].pass_decrypt == req.query.pass) {
-				res.cookie('UID', rows[0].user_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
 				res.json({
 					url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
 					uid: rows[0].user_id,
+					uniq: rows[0].uniq_decrypt,
 					gid: rows[0].default_group_id,
 					gname: rows[0].name
 				})
@@ -19,7 +19,7 @@ module.exports = {
 		})
 	},
 	bypass: (connection, req, res) => {
-		connection.query(`select user_id, default_group_id, groups.name from users inner join groups on groups.group_id=users.default_group_id WHERE user_id='${req.query.user}';`, (err, rows, fields) => {
+		connection.query(`select user_id, default_group_id, groups.name from users inner join groups on groups.group_id=users.default_group_id WHERE unique_user_id=AES_ENCRYPT('${req.query.user}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			if(!rows.length) res.sendStatus(404)
