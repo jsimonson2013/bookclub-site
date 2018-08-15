@@ -20,7 +20,7 @@ const htmlEscape = input => {
 }
 
 const insertPost = (connection, type, params) => {
-	connection.query(`select firstname, lastname from users where user_id=${params.user_id};`, (err, rows, fields) => {
+	connection.query(`select firstname, lastname from users where unique_user_id=AES_ENCRYPT('${params.uniq_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 		if (err) throw err
 
 		if (!rows.length) return false

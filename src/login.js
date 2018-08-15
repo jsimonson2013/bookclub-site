@@ -41,7 +41,7 @@ module.exports = {
 		const last = req.query.last
 		const pass = req.query.pass
 
-		connection.query(`select default_group_id, groups.name, users.email, users.user_id from invitees inner join users on invitees.email=users.email inner join groups on users.default_group_id=groups.group_id where code='${code}';`, (error, rows, fields) => {
+		connection.query(`select default_group_id, unique_user_id, groups.name, users.email, users.user_id from invitees inner join users on invitees.email=users.email inner join groups on users.default_group_id=groups.group_id where code='${code}';`, (error, rows, fields) => {
 			if (error) throw error
 
 			if (!rows[0]) {
@@ -52,11 +52,10 @@ module.exports = {
 			connection.query(`update users set firstname='${first}', lastname='${last}', pass=AES_ENCRYPT('${pass}', '${process.argv[5]}') where email='${rows[0].email}';`, (err, results) => {
 				if (err) throw err
 
-				res.cookie('UID', rows[0].user_id, {maxAge: 900000, domain: 'friendgroup.jacobsimonson.me', path:'/', httpOnly: false})
-
 				res.json({
 					url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
 					uid: rows[0].user_id,
+					uniq: rows[0].unique_user_id,
 					gid: rows[0].default_group_id,
 					gname: rows[0].name
 				})
