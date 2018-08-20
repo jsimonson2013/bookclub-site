@@ -76,6 +76,15 @@ module.exports = {
 			res.json(rows)
 		})
 	},
+	getNotifications: (connection, req, res) => {
+		connection.query(`select notifications_on from users where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
+			if (err) throw err
+
+			if (rows.length < 1) res.sendStatus(408)
+
+			res.json(rows)
+		})
+	},
 	getProfile: (connection, req, res) => {
 		connection.query(`select * from users where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
@@ -209,6 +218,16 @@ module.exports = {
 
 				res.sendStatus(200)
 			}
+		})
+	},
+	setNotifications: (connection, req, res) => {
+		let bool = 0
+		if (req.query.set == 'true') bool = 1
+
+		connection.query(`update users set notifications_on='${bool}' where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
+			if (err) throw err
+
+			res.sendStatus(200)
 		})
 	},
 	updatePass: (connection, req, res) => {

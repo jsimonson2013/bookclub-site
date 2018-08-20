@@ -49,7 +49,7 @@ const groupPostsByUsers = promises => {
 			if (!post[0]) continue
 
 			queries.push(new Promise((resolve, reject) => {
-				connection.query(`select email from users where default_group_id=${post[0].gid} and pass is not NULL;`, (err, rows, fields) => {
+				connection.query(`select email from users where default_group_id=${post[0].gid} and pass is not NULL and notifications_on IS TRUE;`, (err, rows, fields) => {
 					if (err) throw err
 
 					const emails = []
@@ -71,7 +71,7 @@ const sendEmails = promises => {
 				for (let post of email.posts) {
 					body = body + '<li>'+post.author+' wrote "'+post.content+'"</li>'
 				}
-				sendEmail(email.email, 'FriendGroup Top Posts this Week!', body + '</ul><p>To check these out follow the link at the bottom of this email.</p>')
+				sendEmail(email.email, 'FriendGroup Top Posts this Week!', body + '</ul><p>To check these out follow the link at the bottom of this email.<br>To unsubscribe from these weekly emails, visit your profile and change your email settings.</p>')
 			}
 		}
 	})

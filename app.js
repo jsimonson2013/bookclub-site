@@ -194,6 +194,17 @@ app.get('/login', (req, res) => {
 })
 
 /**
+ * Gets the users notifications settings.
+ *
+ * @param req.query.uid for users unique id
+ *
+ * @returns res.json.notifications_on true if notifications on, else false
+ */
+app.get('/notifications', (req, res) => {
+	user.getNotifications(connection, req, res)
+})
+
+/**
  * Get number of comments for a post.
  *
  * @param req.query.parent_id parent id of post to query comments for
@@ -238,6 +249,18 @@ app.get('/profile', (req, res) => {
  */
 app.get('/reset-pass', (req, res) => {
 	user.resetPass(connection, req, res)
+})
+
+/**
+ * Sets the user's notification settings.
+ *
+ * @param req.query.uid user's unique id
+ * @param req.query.set is boolean used to set notifications
+ *
+ * @returns res.status 200 on success
+ */
+app.get('/set-notifications', (req, res) => {
+	user.setNotifications(connection, req, res)
 })
 
 /**
