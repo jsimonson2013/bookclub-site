@@ -128,7 +128,7 @@ module.exports = {
 				promises.push(voteCreate)
 
 				const userCreate = new Promise((resolve, reject) => {
-					conn.query('create table if not exists users (user_id int(11) not null auto_increment, firstname varchar(16), lastname varchar(32), email varchar(32), pass varbinary(255), score int(11) default 0, default_group_id int(11), primary key (user_id) );', (err, res) => {
+					conn.query('create table if not exists users (user_id int(11) not null auto_increment, firstname varchar(16), lastname varchar(32), email varchar(32), pass varbinary(255), unique_user_id varbinary(256), score int(11) default 0, default_group_id int(11), primary key (user_id) );', (err, res) => {
 						if (err) throw err
 						console.log('users created')
 						resolve(true)
@@ -149,7 +149,7 @@ module.exports = {
 					promises.push(userAdd1)
 
 					const userAdd2 = new Promise((resolve, reject) => {
-						conn.query(`insert into users (email, firstname, lastname, pass, default_group_id) values('email', 'chester', 'mcprofile', AES_ENCRYPT('pass', 'pass'), 1, AES_ENCRYPT('pass2', 'pass'));`, (err, results) => {
+						conn.query(`insert into users (email, firstname, lastname, pass, default_group_id, unique_user_id) values('email', 'chester', 'mcprofile', AES_ENCRYPT('pass', 'pass'), 1, AES_ENCRYPT('pass2', 'pass'));`, (err, results) => {
 							if (err) throw err
 							console.log('user added')
 							resolve(true)

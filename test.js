@@ -107,7 +107,7 @@ const testCreateGroup = new Promise((resolve, reject) => {
 })
 
 const testChangeGroup = new Promise((resolve, reject) => {
-	fetch('http://localhost:3000/change-group/?gid=1&uid=pass', {method: 'GET'})
+	fetch('http://localhost:3000/change-group/?gid=1&uid=1', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(res)
@@ -243,7 +243,7 @@ const testPostSubmission = new Promise((resolve, reject) => {
 })
 
 const testPostVote = new Promise((resolve, reject) => {
-	fetch('http://localhost:3000/vote/', {headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify({'post_id': 1, 'uniq_id': 'pass'})})
+	fetch('http://localhost:3000/vote/', {headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify({'post_id': 1, 'user_id': 1})})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(res)
