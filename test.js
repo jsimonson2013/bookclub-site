@@ -107,7 +107,7 @@ const testCreateGroup = new Promise((resolve, reject) => {
 })
 
 const testChangeGroup = new Promise((resolve, reject) => {
-	fetch('http://localhost:3000/change-group/?gid=1&uid=1', {method: 'GET'})
+	fetch('http://localhost:3000/change-group/?gid=1&uid=pass', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(res)
@@ -131,7 +131,7 @@ const testResetPass = new Promise((resolve, reject) => {
 })
 
 const testGetGroups = new Promise((resolve, reject) => {
-	fetch('http://localhost:3000/groups/?user_id=1', {method: 'GET'})
+	fetch('http://localhost:3000/groups/?user_id=pass', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(res)
@@ -147,7 +147,7 @@ const testLeaveGroup = new Promise((resolve, reject) => {
 })
 
 const testGetProfile = new Promise((resolve, reject) => {
-	fetch('http://localhost:3000/profile/?user_id=1', {method: 'GET'})
+	fetch('http://localhost:3000/profile/?user_id=pass', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(res)
@@ -235,7 +235,7 @@ const testPostSubmission = new Promise((resolve, reject) => {
 	if (localeTime.split(':')[0].length != 2) localeTime = `0${localeTime}`
 	oldestDate = `${currentDateTime.toISOString().slice(0,10)} ${localeTime}`
 
-	fetch('http://localhost:3000/submission/', {headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify({'content': 'whats up', 'link': 'https://jacobsimonson.me', 'timestamp': oldestDate, 'group_id': 1, 'user_id': 2})})
+	fetch('http://localhost:3000/submission/', {headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify({'content': 'whats up', 'link': 'https://jacobsimonson.me', 'timestamp': oldestDate, 'group_id': 1, 'uniq_id': 'pass2'})})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(res)
@@ -243,7 +243,7 @@ const testPostSubmission = new Promise((resolve, reject) => {
 })
 
 const testPostVote = new Promise((resolve, reject) => {
-	fetch('http://localhost:3000/vote/', {headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify({'post_id': 1, 'user_id': 1})})
+	fetch('http://localhost:3000/vote/', {headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify({'post_id': 1, 'uniq_id': 'pass'})})
 	.then(res => {
 		if (res.status === 200) resolve(true)
 		else resolve(res)

@@ -149,7 +149,7 @@ module.exports = {
 					promises.push(userAdd1)
 
 					const userAdd2 = new Promise((resolve, reject) => {
-						conn.query(`insert into users (email, firstname, lastname, pass, default_group_id) values('email', 'chester', 'mcprofile', AES_ENCRYPT('pass', 'pass'), 1, AES_ENCRYPT('pass', 'pass'));`, (err, results) => {
+						conn.query(`insert into users (email, firstname, lastname, pass, default_group_id) values('email', 'chester', 'mcprofile', AES_ENCRYPT('pass', 'pass'), 1, AES_ENCRYPT('pass2', 'pass'));`, (err, results) => {
 							if (err) throw err
 							console.log('user added')
 							resolve(true)
