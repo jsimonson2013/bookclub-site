@@ -39,7 +39,7 @@ const testLoginNoArgs = new Promise((resolve, reject) => {
 })
 
 const testBypass = new Promise((resolve, reject) => {
-	fetch('http://localhost:3000/bypass/?user=1', {method: 'GET'})
+	fetch('http://localhost:3000/bypass/?user=pass', {method: 'GET'})
 	.then(res => {
 		if (res.status === 200) return res.json()
 		else resolve(res)
