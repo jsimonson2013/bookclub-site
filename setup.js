@@ -26,7 +26,7 @@ module.exports = {
 			})
 
 			const groupDrop = new Promise((resolve, reject) => {
-				conn.query('drop table if exists groups;', (err, res) => {
+				conn.query('drop table if exists fgroups;', (err, res) => {
 					if (err) throw err
 					console.log('groups dropped')
 					resolve(true)
@@ -83,7 +83,7 @@ module.exports = {
 				promises = []
 
 				const groupCreate = new Promise((resolve, reject) => {
-					conn.query('create table if not exists groups (group_id int(11) auto_increment, name varchar(255) default null, primary key (group_id) );', (err, res) => {
+					conn.query('create table if not exists fgroups (group_id int(11) auto_increment, name varchar(255) default null, primary key (group_id) );', (err, res) => {
 						if (err) throw err
 						console.log('groups created')
 						resolve(true)
@@ -158,7 +158,7 @@ module.exports = {
 					promises.push(userAdd2)
 
 					const groupAdd = new Promise((resolve, reject) => {
-						conn.query(`insert into groups (name) values('test');`, (err, results) => {
+						conn.query(`insert into fgroups (name) values('test');`, (err, results) => {
 							if (err) throw err
 							console.log('group added')
 							resolve(true)

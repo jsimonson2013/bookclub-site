@@ -28,10 +28,10 @@ module.exports = {
 		})
 	},
 	createGroup: (connection, req, res) => {
-		connection.query(`insert into groups (name) values ('${req.query.name}');`, (err, results) => {
+		connection.query(`insert into fgroups (name) values ('${req.query.name}');`, (err, results) => {
 			if (err) throw err
 
-			connection.query(`select group_id from groups where name='${req.query.name}';`, (e, rows, fields) => {
+			connection.query(`select group_id from fgroups where name='${req.query.name}';`, (e, rows, fields) => {
 				if (e) throw e
 
 				connection.query(`insert into memberships (group_id, user_id) values (${rows[0].group_id}, ${req.query.uid});`, (e, r) => {
@@ -65,7 +65,7 @@ module.exports = {
 		})
 	},
 	getGroups: (connection, req, res) => {
-		connection.query(`select name, groups.group_id from memberships inner join users on memberships.user_id=users.user_id inner join groups on memberships.group_id=groups.group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select name, fgroups.group_id from memberships inner join users on memberships.user_id=users.user_id inner join fgroups on memberships.group_id=fgroups.group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			if (rows.length < 1) {
@@ -177,7 +177,7 @@ module.exports = {
 				let groupname = ''
 				let invitername = ''
 
-				connection.query(`select name from groups where group_id=${groupid};`, (error, rows, fields) => {
+				connection.query(`select name from fgroups where group_id=${groupid};`, (error, rows, fields) => {
 					if (error) throw error
 
 					groupname = rows[0].name
