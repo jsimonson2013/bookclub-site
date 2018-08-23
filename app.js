@@ -216,6 +216,23 @@ app.get('/num-comments', (req, res) => {
 })
 
 /**
+ * Get all members in group.
+ *
+ * @param req.query.gid group id of group to select users from
+ *
+ * @return res.json[] names of members in group
+ */
+app.get('/members', (req, res) => {
+	connection.query(`select firstname, lastname from memberships inner join users on memberships.user_id=users.user_id where group_id=${req.query.gid};`, (err, rows, fields) => {
+		if (err) throw err
+
+		if (rows.length < 1) res.sendStatus(404)
+
+		else res.json(rows)
+	})
+})
+
+/**
  * Update users password to new password. Sends email notifying password change.
  *
  * @param req.body.email email of user to change password
