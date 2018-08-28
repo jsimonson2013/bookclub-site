@@ -26,6 +26,7 @@ const insertPost = (connection, type, params) => {
 		if (!rows.length) return false
 
 		const content = htmlEscape(params.content)
+		const link = htmlEscape(decodeURIComponent(params.link))
 
 		const gid = params.group_id
 		const author = `${rows[0].firstname} ${rows[0].lastname}`
@@ -34,11 +35,10 @@ const insertPost = (connection, type, params) => {
 
 		if (type == 'comment') {
 			const pid = params.parent_id
-			queryString = `insert into posts (content, parent_id, group_id, date, author) values ('${content}', '${pid}', '${gid}', now(), '${author}');`
+			queryString = `insert into posts (content, parent_id, group_id, date, author, link) values ('${content}', '${pid}', '${gid}', now(), '${author}', '${link}');`
 		}
 
 		else if (type == 'post') {
-			const link = htmlEscape(decodeURIComponent(params.link))
 			queryString = `insert into posts (content, group_id, date, author, link) values ('${content}', '${gid}', now(), '${author}', '${link}');`
 		}
 
@@ -53,7 +53,7 @@ const insertPost = (connection, type, params) => {
 
 module.exports = {
 	getComments: (connection, req, res) => {
-		connection.query(`select content, author, date from posts where parent_id='${req.query.parent_id}' order by DATE(date) asc;`, (err, rows, fields) =>{
+		connection.query(`select content, author, date, link from posts where parent_id='${req.query.parent_id}' order by DATE(date) asc;`, (err, rows, fields) =>{
 			if (err) throw err
 
 			if(rows.length < 1) {
