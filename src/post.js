@@ -26,7 +26,6 @@ const insertPost = (connection, type, params) => {
 		if (!rows.length) return false
 
 		const content = htmlEscape(params.content)
-		const date = htmlEscape(decodeURIComponent(params.timestamp))
 
 		const gid = params.group_id
 		const author = `${rows[0].firstname} ${rows[0].lastname}`
@@ -35,12 +34,12 @@ const insertPost = (connection, type, params) => {
 
 		if (type == 'comment') {
 			const pid = params.parent_id
-			queryString = `insert into posts (content, parent_id, group_id, date, author) values ('${content}', '${pid}', '${gid}', '${date}', '${author}');`
+			queryString = `insert into posts (content, parent_id, group_id, date, author) values ('${content}', '${pid}', '${gid}', now(), '${author}');`
 		}
 
 		else if (type == 'post') {
 			const link = htmlEscape(decodeURIComponent(params.link))
-			queryString = `insert into posts (content, group_id, date, author, link) values ('${content}', '${gid}', '${date}', '${author}', '${link}');`
+			queryString = `insert into posts (content, group_id, date, author, link) values ('${content}', '${gid}', now(), '${author}', '${link}');`
 		}
 
 		if (queryString.length < 1) return false
