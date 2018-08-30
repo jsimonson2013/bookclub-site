@@ -1,5 +1,7 @@
 module.exports = {
 	login: (connection, req, res) => {
+		// TODO: send unique group id in response
+		// TODO: join based on unique group id
 		connection.query(`select user_id, default_group_id, fgroups.name, cast(AES_DECRYPT(pass, '${process.argv[5]}') as char(255)) pass_decrypt, cast(AES_DECRYPT(unique_user_id, '${process.argv[5]}') as char(256)) uniq_decrypt from users inner join fgroups on fgroups.group_id=users.default_group_id WHERE email='${req.query.user}';`, (err, rows, fields) => {
 			if (err) throw err
 
@@ -18,6 +20,8 @@ module.exports = {
 			else res.sendStatus(404)
 		})
 	},
+	// TODO: send unique group id in response
+	// TODO: join based on unique group id
 	bypass: (connection, req, res) => {
 		connection.query(`select user_id, default_group_id, fgroups.name from users inner join fgroups on fgroups.group_id=users.default_group_id WHERE unique_user_id=AES_ENCRYPT('${req.query.user}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
@@ -34,6 +38,9 @@ module.exports = {
 			}
 		})
 	},
+	// TODO: send unique group id in response
+	// TODO: join based on unique group id
+	// TODO: insert unique group and user id into memberships
 	signup: (connection, req, res) => {
 		const code = req.query.code
 

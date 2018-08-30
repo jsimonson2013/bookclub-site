@@ -20,6 +20,8 @@ const sendEmail = (recipient, subject, body) => {
 }
 
 module.exports = {
+	// TODO: update default to unique group id
+	// TODO: query based on unique user id
 	changeDefault: (connection, req, res) => {
 		connection.query(`update users set default_group_id=${req.query.gid} where user_id=${req.query.uid};`, (err, results) => {
 			if (err) throw err
@@ -27,8 +29,13 @@ module.exports = {
 			res.sendStatus(200)
 		})
 	},
+	// TODO: eliminate select
+	// TODO: use unique group id for memberships
+	// TODO: send unique group id in response
 	createGroup: (connection, req, res) => {
-		connection.query(`insert into fgroups (name) values ('${req.query.name}');`, (err, results) => {
+		const random = makeCode(12)
+
+		connection.query(`insert into fgroups (name, unique_group_id) values ('${req.query.name}', AES_ENCRYPT('${random}', '${process.argv[5]}'));`, (err, results) => {
 			if (err) throw err
 
 			connection.query(`select group_id from fgroups where name='${req.query.name}';`, (e, rows, fields) => {
@@ -46,6 +53,7 @@ module.exports = {
 			})
 		})	
 	},
+	// TODO: select unique group id from invitees
 	createProfile: (connection, req, res) => {
 		const code = req.query.code
 
@@ -55,6 +63,8 @@ module.exports = {
 			else res.sendStatus(404)
 		})
 	},
+	// TODO: select unique group id
+	// TODO: send unique group id in response
 	defaultGroup: (connection, req, res) => {
 		connection.query(`select default_group_id from users where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
@@ -64,6 +74,9 @@ module.exports = {
 			})
 		})
 	},
+	// TODO: select unique group id
+	// TODO: join on unique user id
+	// TODO: join on unique group id
 	getGroups: (connection, req, res) => {
 		connection.query(`select name, fgroups.group_id from memberships inner join users on memberships.user_id=users.user_id inner join fgroups on memberships.group_id=fgroups.group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
@@ -85,6 +98,7 @@ module.exports = {
 			res.json(rows)
 		})
 	},
+	// TODO: don't select star
 	getProfile: (connection, req, res) => {
 		connection.query(`select * from users where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
@@ -103,6 +117,9 @@ module.exports = {
 			else res.json({'score': rows[0].score})
 		})
 	},
+	// TODO: select unique post id
+	// TODO: select unique user id
+	// TODO: condition on unique post id
 	getVotes: (connection, req, res) => {
 		connection.query(`select vote_id from votes where post_id in (select post_id from votes where post_id=${req.query.post_id} and user_id=${req.query.user_id});`, (err, rows, fields) => {
 			if (err) throw err
@@ -115,6 +132,7 @@ module.exports = {
 			res.json(rows)
 		})
 	},
+	// TODO: condition on unique user id
 	incrementScore: (connection, req, res) => {
 		connection.query(`update users set score=score + 1 where user_id='${req.query.uid}';`, (err, results) => {
 			if (err) throw err
@@ -122,6 +140,12 @@ module.exports = {
 			res.sendStatus(200)
 		})
 	},
+	// TODO: insert unique group id
+	// TODO: insert unique inviter id
+	// TODO: insert unique default group id
+	// TODO: select unique group from memberships
+	// TODO: condition on unique user from memberships
+	// TODO: ... way more
 	invite: (connection, req, res) => {
 		const email = req.query.email
 		const userid = req.query.uid
@@ -195,6 +219,8 @@ module.exports = {
 			}
 		})
 	},
+	// TODO: condition on unique user id
+	// TODO: condition on unique group id
 	leaveGroup: (connection, req, res) => {
 		connection.query(`delete from memberships where user_id=${req.query.uid} and group_id=${req.query.gid};`, (err, results) => {
 			if (err) throw err
@@ -230,6 +256,8 @@ module.exports = {
 			res.sendStatus(200)
 		})
 	},
+	// TODO: condition on unique user id
+	// TODO: condition on unique user id
 	updatePass: (connection, req, res) => {
 		const userid = req.body.user
 		const newpass = req.body.newpass
