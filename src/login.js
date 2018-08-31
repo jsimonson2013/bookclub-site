@@ -38,9 +38,7 @@ module.exports = {
 			}
 		})
 	},
-	// TODO: send unique group id in response
-	// TODO: join based on unique group id
-	// TODO: insert unique group and user id into memberships
+	// TODO: remove non-unique ids
 	signup: (connection, req, res) => {
 		const code = req.query.code
 
@@ -48,7 +46,7 @@ module.exports = {
 		const last = req.query.last
 		const pass = req.query.pass
 
-		connection.query(`select default_group_id, unique_user_id, fgroups.name, users.email, users.user_id from invitees inner join users on invitees.email=users.email inner join fgroups on users.default_group_id=fgroups.group_id where code='${code}';`, (error, rows, fields) => {
+		connection.query(`select cast(AES_DECRYPT(default_group, '${process.argv[5]}') as char(256)) g, default_group_id, cast(AES_DECRYPT(unique_user_id, '${process.argv[5]}') as char(256)) u, fgroups.name, users.email, users.user_id from invitees inner join users on invitees.email=users.email inner join fgroups on users.default_group=fgroups.unique_group_id where code='${code}';`, (error, rows, fields) => {
 			if (error) throw error
 
 			if (!rows[0]) {
@@ -62,12 +60,13 @@ module.exports = {
 				res.json({
 					url: 'https://friendgroup.jacobsimonson.me/html/feed-template.html',
 					uid: rows[0].user_id,
-					uniq: rows[0].unique_user_id,
+					uniq: rows[0].u,
+					group: rows[0].g,
 					gid: rows[0].default_group_id,
 					gname: rows[0].name
 				})
 
-				connection.query(`insert into memberships (user_id, group_id) values ('${rows[0].user_id}', '${rows[0].default_group_id}');`, (e, rslts) => {if (e) throw e})
+				connection.query(`insert into memberships (user_id, group_id, uniq_user, uniq_group) values ('${rows[0].user_id}', '${rows[0].default_group_id}', AES_ENCRYPT('${rows[0].u}', '${process.argv[5]}'), AES_ENCRYPT('${rows[0].g}', '${process.argv[5]}'));`, (e, rslts) => {if (e) throw e})
 
 				connection.query(`delete from invitees where code='${code}';`, (e, rslts) => {if (e) throw e})
 			})

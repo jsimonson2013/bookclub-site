@@ -78,7 +78,7 @@ module.exports = {
 	// TODO: join on unique user id
 	// TODO: join on unique group id
 	getGroups: (connection, req, res) => {
-		connection.query(`select name, fgroups.group_id from memberships inner join users on memberships.user_id=users.user_id inner join fgroups on memberships.group_id=fgroups.group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select name, fgroups.group_id, cast(AES_DECRYPT(unique_group_id, '${process.argv[5]}') as char(256)) g from memberships inner join users on memberships.user_id=users.user_id inner join fgroups on memberships.group_id=fgroups.group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			if (rows.length < 1) {
@@ -150,8 +150,9 @@ module.exports = {
 		const email = req.query.email
 		const userid = req.query.uid
 		const groupid = req.query.gid
+		const uniqgroup = req.query.g
 
-		connection.query(`select user_id from users where email='${email}';`, (err, rows, fields) => {
+		connection.query(`select user_id, unique_user_id from users where email='${email}';`, (err, rows, fields) => {
 			if (err) throw err
 
 			const joinCode = makeCode(10)
@@ -162,7 +163,7 @@ module.exports = {
 
 					let random_user_id = makeCode(12)
 
-					connection.query(`insert into users (email, default_group_id, unique_user_id) values ('${email}', '${groupid}', AES_ENCRYPT('${random_user_id}', '${process.argv[5]}'));`, (e, r) => {
+					connection.query(`insert into users (email, default_group_id, default_group, unique_user_id) values ('${email}', '${groupid}', AES_ENCRYPT('${uniqgroup}', '${process.argv[5]}'), AES_ENCRYPT('${random_user_id}', '${process.argv[5]}'));`, (e, r) => {
 						if (e) throw e
 	
 						const extra = `You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><b>${joinCode}</b>`
@@ -186,7 +187,7 @@ module.exports = {
 							}
 						}
 
-						connection.query(`insert into memberships (user_id, group_id) values (${rows[0].user_id}, ${groupid})`, (e, results) => {
+						connection.query(`insert into memberships (user_id, group_id, uniq_user, uniq_group) values (${rows[0].user_id}, ${groupid}, AES_ENCRYPT('${rows[0].unique_user_id}', '${process.argv[5]}'), AES_ENCRYPT('${uniqgroup}', '${process.argv[5]}'))`, (e, results) => {
 							if (e) throw e
 
 							const extra = `You have been automatically added to the group and can manage memberships from your profile.`
