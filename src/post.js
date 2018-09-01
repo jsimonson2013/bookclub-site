@@ -29,9 +29,7 @@ const makeCode = (length) => {
   return text
 }
 
-// TODO: insert unique parent id
-// TODO: insert unique group id
-// TODO: x2
+// TODO: remove non-unique ids
 const insertPost = (connection, type, params) => {
 	connection.query(`select firstname, lastname from users where unique_user_id=AES_ENCRYPT('${params.uniq_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 		if (err) throw err
@@ -44,16 +42,18 @@ const insertPost = (connection, type, params) => {
 		const gid = params.group_id
 		const author = `${rows[0].firstname} ${rows[0].lastname}`
 
+		const group = params.group
+
 		let queryString = ''
 		const random = makeCode(12)
 
 		if (type == 'comment') {
 			const pid = params.parent_id
-			queryString = `insert into posts (content, parent_id, group_id, date, author, link, unique_post_id) values ('${content}', '${pid}', '${gid}', now(), '${author}', '${link}', AES_ENCRYPT('${random}', '${process.argv[5]}'));`
+			queryString = `insert into posts (content, parent_post, group_id, date, author, link, uniq_group, unique_post_id) values ('${content}', AES_ENCRYPT('${pid}', '${process.argv[5]}'), '${gid}', now(), '${author}', '${link}', AES_ENCRYPT('${group}', '${process.argv[5]}'), AES_ENCRYPT('${random}', '${process.argv[5]}'));`
 		}
 
 		else if (type == 'post') {
-			queryString = `insert into posts (content, group_id, date, author, link, unique_post_id) values ('${content}', '${gid}', now(), '${author}', '${link}', AES_ENCRYPT('${random}', '${process.argv[5]}'));`
+			queryString = `insert into posts (content, group_id, date, author, link, uniq_group, unique_post_id) values ('${content}', '${gid}', now(), '${author}', '${link}', AES_ENCRYPT('${group}', '${process.argv[5]}'), AES_ENCRYPT('${random}', '${process.argv[5]}'));`
 		}
 
 		if (queryString.length < 1) return false
@@ -66,9 +66,8 @@ const insertPost = (connection, type, params) => {
 }
 
 module.exports = {
-	// TODO: condition on unique parent id
 	getComments: (connection, req, res) => {
-		connection.query(`select content, author, date, link from posts where parent_id='${req.query.parent_id}' order by DATE(date) asc;`, (err, rows, fields) =>{
+		connection.query(`select content, author, date, link from posts where parent_post=AES_ENCRYPT('${req.query.parent_id}', '${process.argv[5]}') order by DATE(date) asc;`, (err, rows, fields) =>{
 			if (err) throw err
 
 			if(rows.length < 1) {
@@ -79,10 +78,9 @@ module.exports = {
 			res.json(rows)
 		})
 	},
-	// TODO: condition on unique parent id
-	// TODO: select unique post id
+	// TODO: remove non-unique ids
 	getNumComments: (connection, req, res) => {
-		connection.query(`select post_id from posts where parent_id='${req.query.parent_id}';`, (err, rows, fields) =>{
+		connection.query(`select post_id, cast(AES_DECRYPT('unique_post_id', '${process.argv[5]}') as char(256)) u from posts where parent_post=AES_ENCRYPT('${req.query.parent_id}', '${process.argv[5]}');`, (err, rows, fields) =>{
 			if (err) throw err
 
 			if(rows.length < 1) {
@@ -93,9 +91,8 @@ module.exports = {
 			res.json(rows)
 		})
 	},
-	// TODO: condition on unique post id
 	getVotes: (connection, req, res) => {
-		connection.query(`select vote_id from votes where post_id=${req.query.post_id};`, (err, rows, fields) => {
+		connection.query(`select vote_id from votes where post=AES_ENCRYPT('${req.query.post_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			if(!rows.length) {
@@ -106,7 +103,6 @@ module.exports = {
 			res.json(rows)
 		})
 	},
-	// TODO: see insertPost()
 	newPost: (connection, req, res) => {
 		if (insertPost(connection, 'post', req.body)) res.sendStatus(200)
 
@@ -117,18 +113,13 @@ module.exports = {
 
 		else res.sendStatus(404)
 	},
-	// TODO: select unique user id
-	// TODO: select unique post id
-	// TODO: condition on unique post id
-	// TODO: condition on unique user id
-	// TODO: insert unique user id
-	// TODO: insert unique post id
+	// TODO: remove non-unique ids
 	vote: (connection, req, res) => {
-		connection.query(`select user_id, post_id from votes where user_id=${req.body.user_id} and post_id=${req.body.post_id};`, (err, rows, fields) => {
+		connection.query(`select user_id, post_id, cast(AES_DECRYPT('user', '${process.argv[5]}') as char (256)) u, cast(AES_DECRYPT('post', '${process.argv[5]}') as char (256)) p from votes where user=AES_ENCRYPT('${req.body.user_id}', '${process.argv[5]}') and post=AES_ENCRYPT('${req.body.post_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			if (!rows.length) {
-				connection.query(`insert into votes (user_id, post_id) values (${req.body.user_id}, ${req.body.post_id});`, (err, result) => {
+				connection.query(`insert into votes (user, post) values (AES_ENCRYPT('${req.body.user_id}', '${process.argv[5]}'), AES_ENCRYPT('${req.body.post_id}', '${process.argv[5]}'));`, (err, result) => {
 					if (err) throw err
 
 					res.sendStatus(200)

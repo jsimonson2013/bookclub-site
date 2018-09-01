@@ -121,7 +121,7 @@ module.exports = {
 	// TODO: select unique user id
 	// TODO: condition on unique post id
 	getVotes: (connection, req, res) => {
-		connection.query(`select vote_id from votes where post_id in (select post_id from votes where post_id=${req.query.post_id} and user_id=${req.query.user_id});`, (err, rows, fields) => {
+		connection.query(`select vote_id from votes where post in (select post from votes where post=AES_ENCRYPT('${req.query.post_id}', '${process.argv[5]}') and user=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}'));`, (err, rows, fields) => {
 			if (err) throw err
 
 			if(!rows.length) {
