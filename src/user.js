@@ -20,18 +20,15 @@ const sendEmail = (recipient, subject, body) => {
 }
 
 module.exports = {
-	// TODO: update default to unique group id
-	// TODO: query based on unique user id
+	// TODO: remove non-unique ids
 	changeDefault: (connection, req, res) => {
-		connection.query(`update users set default_group_id=${req.query.gid} where user_id=${req.query.uid};`, (err, results) => {
+		connection.query(`update users set default_group_id=${req.query.gid}, default_group=AES_ENCRYPT('${req.query.group}', '${process.argv[5]}') where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, results) => {
 			if (err) throw err
 
 			res.sendStatus(200)
 		})
 	},
-	// TODO: eliminate select
-	// TODO: use unique group id for memberships
-	// TODO: send unique group id in response
+	// TODO: remove non-unique ids
 	createGroup: (connection, req, res) => {
 		const random = makeCode(12)
 
@@ -41,11 +38,12 @@ module.exports = {
 			connection.query(`select group_id from fgroups where name='${req.query.name}';`, (e, rows, fields) => {
 				if (e) throw e
 
-				connection.query(`insert into memberships (group_id, user_id) values (${rows[0].group_id}, ${req.query.uid});`, (e, r) => {
+				connection.query(`insert into memberships (group_id, user_id, uniq_group, uniq_user) values (${rows[0].group_id}, ${req.query.uid}, AES_ENCRYPT('${random}', '${process.argv[5]}'), AES_ENCRYPT('${req.query.user}', '${process.argv[5]}'));`, (e, r) => {
 					if (e) throw e
 
 					res.json({
 						'gid': rows[0].group_id,
+						'group': random,
 						'gname': req.query.name 
 					})
 
@@ -53,7 +51,7 @@ module.exports = {
 			})
 		})	
 	},
-	// TODO: select unique group id from invitees
+	// TODO: remove non-unique ids
 	createProfile: (connection, req, res) => {
 		const code = req.query.code
 
@@ -63,22 +61,20 @@ module.exports = {
 			else res.sendStatus(404)
 		})
 	},
-	// TODO: select unique group id
-	// TODO: send unique group id in response
+	// TODO: remove non-unique ids
 	defaultGroup: (connection, req, res) => {
-		connection.query(`select default_group_id from users where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select default_group_id, cast(AES_DECRYPT(default_group, '${process.argv[5]}') as char(256)) g from users where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			res.json({
+				'group': rows[0].g,
 				'gid': rows[0].default_group_id
 			})
 		})
 	},
-	// TODO: select unique group id
-	// TODO: join on unique user id
-	// TODO: join on unique group id
+	// TODO: remove non-unique ids
 	getGroups: (connection, req, res) => {
-		connection.query(`select name, fgroups.group_id, cast(AES_DECRYPT(unique_group_id, '${process.argv[5]}') as char(256)) g from memberships inner join users on memberships.user_id=users.user_id inner join fgroups on memberships.group_id=fgroups.group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select name, fgroups.group_id, cast(AES_DECRYPT(unique_group_id, '${process.argv[5]}') as char(256)) g from memberships inner join users on memberships.uniq_user=users.unique_user_id inner join fgroups on memberships.uniq_group=fgroups.unique_group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
 			if (err) throw err
 
 			if (rows.length < 1) {
@@ -117,9 +113,6 @@ module.exports = {
 			else res.json({'score': rows[0].score})
 		})
 	},
-	// TODO: select unique post id
-	// TODO: select unique user id
-	// TODO: condition on unique post id
 	getVotes: (connection, req, res) => {
 		connection.query(`select vote_id from votes where post in (select post from votes where post=AES_ENCRYPT('${req.query.post_id}', '${process.argv[5]}') and user=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}'));`, (err, rows, fields) => {
 			if (err) throw err
@@ -132,9 +125,8 @@ module.exports = {
 			res.json(rows)
 		})
 	},
-	// TODO: condition on unique user id
 	incrementScore: (connection, req, res) => {
-		connection.query(`update users set score=score + 1 where user_id='${req.query.uid}';`, (err, results) => {
+		connection.query(`update users set score=score + 1 where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, results) => {
 			if (err) throw err
 
 			res.sendStatus(200)
@@ -220,10 +212,8 @@ module.exports = {
 			}
 		})
 	},
-	// TODO: condition on unique user id
-	// TODO: condition on unique group id
 	leaveGroup: (connection, req, res) => {
-		connection.query(`delete from memberships where user_id=${req.query.uid} and group_id=${req.query.gid};`, (err, results) => {
+		connection.query(`delete from memberships where uniq_user=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}') and uniq_group=AES_ENCRYPT('${req.query.gid}', '${process.argv[5]}');`, (err, results) => {
 			if (err) throw err
 
 			res.sendStatus(200)
@@ -257,16 +247,14 @@ module.exports = {
 			res.sendStatus(200)
 		})
 	},
-	// TODO: condition on unique user id
-	// TODO: condition on unique user id
 	updatePass: (connection, req, res) => {
 		const userid = req.body.user
 		const newpass = req.body.newpass
 
-		connection.query(`update users set pass=AES_ENCRYPT('${newpass}', '${process.argv[5]}') where user_id=${userid};`, (err, result) => {
+		connection.query(`update users set pass=AES_ENCRYPT('${newpass}', '${process.argv[5]}') where unique_user_id=AES_ENCRYPT('${userid}', '${process.argv[5]}');`, (err, result) => {
 			if (err) throw err
 
-			connection.query(`select email from users where user_id='${userid}';`, (err, rows, fields) => {
+			connection.query(`select email from users where unique_user_id=AES_ENCRYPT('${userid}', '${process.argv[5]}');`, (err, rows, fields) => {
 				const body = 'Just sending this email to let you know that you\'ve changed your password!'
 
 				sendEmail(rows[0].email, 'Confirmation of Password Change', body)
