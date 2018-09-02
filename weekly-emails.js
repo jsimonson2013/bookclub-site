@@ -27,7 +27,7 @@ const getTopPosts = () => {
 
 		for (let row of rows) {
 			queries.push(new Promise((resolve, reject) => {
-				connection.query(`select content, author from posts where group_id = ${row.group_id} and parent_id is NULL order by DATE(date) desc limit 3;`, (err, r, fields) => {
+				connection.query(`select content, author from posts where group_id = ${row.group_id} and parent_post is NULL order by DATE(date) desc limit 3;`, (err, r, fields) => {
 					if (err) throw err
 
 					const posts = []
