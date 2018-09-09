@@ -1,4 +1,8 @@
 const sendmail = require('sendmail')()
+const qh = require('./query-helper')
+
+const BASE_URL = "https://friendgroup.jacobsimonson.me"
+const SIGNUP_TEMPLATE = "/html/create-profile.html"
 
 const makeCode = (length) => {
   let text = ""
@@ -21,7 +25,7 @@ const sendEmail = (recipient, subject, body) => {
 
 module.exports = {
 	changeDefault: (connection, req, res) => {
-		connection.query(`update users set default_group=AES_ENCRYPT('${req.query.group}', '${process.argv[5]}') where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, results) => {
+		connection.query(`update users set default_group=${qh.encrypt(req.query.group)} where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, results) => {
 			if (err) throw err
 
 			res.sendStatus(200)
@@ -30,10 +34,10 @@ module.exports = {
 	createGroup: (connection, req, res) => {
 		const random = makeCode(12)
 
-		connection.query(`insert into fgroups (name, unique_group_id) values ('${req.query.name}', AES_ENCRYPT('${random}', '${process.argv[5]}'));`, (err, results) => {
+		connection.query(`insert into fgroups (name, unique_group_id) values ('${req.query.name}', ${qh.encrypt(random)});`, (err, results) => {
 			if (err) throw err
 
-			connection.query(`insert into memberships (uniq_group, uniq_user) values (AES_ENCRYPT('${random}', '${process.argv[5]}'), AES_ENCRYPT('${req.query.user}', '${process.argv[5]}'));`, (e, r) => {
+			connection.query(`insert into memberships (uniq_group, uniq_user) values (${qh.encrypt(random)}, ${qh.encrypt(req.query.user)});`, (e, r) => {
 				if (e) throw e
 
 				res.json({
@@ -47,13 +51,13 @@ module.exports = {
 		const code = req.query.code
 
 		connection.query(`select email from invitees where code='${code}'`, (err, rows, fields) => {
-			if (rows.length > 0) res.redirect('https://friendgroup.jacobsimonson.me/html/create-profile.html')
+			if (rows.length > 0) res.redirect(`${BASE_URL}${SIGNUP_TEMPLATE}`)
 
 			else res.sendStatus(404)
 		})
 	},
 	defaultGroup: (connection, req, res) => {
-		connection.query(`select cast(AES_DECRYPT(default_group, '${process.argv[5]}') as char(256)) g from users where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select ${qh.decrypt('default_group', 'g')} from users where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, rows, fields) => {
 			if (err) throw err
 
 			res.json({
@@ -62,7 +66,7 @@ module.exports = {
 		})
 	},
 	getGroups: (connection, req, res) => {
-		connection.query(`select name, cast(AES_DECRYPT(unique_group_id, '${process.argv[5]}') as char(256)) g from memberships inner join users on memberships.uniq_user=users.unique_user_id inner join fgroups on memberships.uniq_group=fgroups.unique_group_id where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select name, ${qh.decrypt('unique_group_id', 'g')} from memberships inner join users on memberships.uniq_user=users.unique_user_id inner join fgroups on memberships.uniq_group=fgroups.unique_group_id where unique_user_id=${qh.encrypt(req.query.user_id)};`, (err, rows, fields) => {
 			if (err) throw err
 
 			if (rows.length < 1) {
@@ -74,7 +78,7 @@ module.exports = {
 		})
 	},
 	getNotifications: (connection, req, res) => {
-		connection.query(`select notifications_on from users where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select notifications_on from users where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, rows, fields) => {
 			if (err) throw err
 
 			if (rows.length < 1) res.sendStatus(408)
@@ -84,7 +88,7 @@ module.exports = {
 	},
 	// TODO: don't select star
 	getProfile: (connection, req, res) => {
-		connection.query(`select * from users where unique_user_id=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select * from users where unique_user_id=${qh.encrypt(req.query.user_id)};`, (err, rows, fields) => {
 			if (err) throw err
 
 			if(rows.length < 1) return
@@ -102,7 +106,7 @@ module.exports = {
 		})
 	},
 	getVotes: (connection, req, res) => {
-		connection.query(`select vote_id from votes where post in (select post from votes where post=AES_ENCRYPT('${req.query.post_id}', '${process.argv[5]}') and user=AES_ENCRYPT('${req.query.user_id}', '${process.argv[5]}'));`, (err, rows, fields) => {
+		connection.query(`select vote_id from votes where post in (select post from votes where post=${qh.encrypt(req.query.post_id)} and user=${qh.encrypt(req.query.user_id)});`, (err, rows, fields) => {
 			if (err) throw err
 
 			if(!rows.length) {
@@ -114,7 +118,7 @@ module.exports = {
 		})
 	},
 	incrementScore: (connection, req, res) => {
-		connection.query(`update users set score=score + 1 where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, results) => {
+		connection.query(`update users set score=score + 1 where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, results) => {
 			if (err) throw err
 
 			res.sendStatus(200)
@@ -125,18 +129,18 @@ module.exports = {
 		const userid = req.query.uid
 		const uniqgroup = req.query.g
 
-		connection.query(`select cast(AES_DECRYPT(unique_user_id, '${process.argv[5]}') as char(256)) u from users where email='${email}';`, (err, rows, fields) => {
+		connection.query(`select ${qh.decrypt('unique_user_id', 'u')} from users where email='${email}';`, (err, rows, fields) => {
 			if (err) throw err
 
 			const joinCode = makeCode(10)
 
 			if (!rows[0]) {
-				connection.query(`insert into invitees (email, inviter, uniq_group, code, expiration) values ('${email}', AES_ENCRYPT('${userid}', '${process.argv[5]}'), AES_ENCRYPT('${uniqgroup}', '${process.argv[5]}'), '${joinCode}', now() + interval 1 week);`, (err, results) => {
+				connection.query(`insert into invitees (email, inviter, uniq_group, code, expiration) values ('${email}', ${qh.encrypt(userid)}, ${qh.encrypt(uniqgroup)}, '${joinCode}', now() + interval 1 week);`, (err, results) => {
 					if (err) throw err
 
 					let random_user_id = makeCode(12)
 
-					connection.query(`insert into users (email, default_group, unique_user_id) values ('${email}', AES_ENCRYPT('${uniqgroup}', '${process.argv[5]}'), AES_ENCRYPT('${random_user_id}', '${process.argv[5]}'));`, (e, r) => {
+					connection.query(`insert into users (email, default_group, unique_user_id) values ('${email}', ${qh.encrypt(uniqgroup)}, ${qh.encrypt(random_user_id)});`, (e, r) => {
 						if (e) throw e
 	
 						const extra = `You can complete your account activation and group joining by following this link<br><br><a href="https://fgapi.jacobsimonson.me/create-profile/?code=${joinCode}">friendgroup.jacobsimonson.me<a><br><br>And entering the following code in the Code field:<br><b>${joinCode}</b>`
@@ -147,7 +151,7 @@ module.exports = {
 			}
 
 			else {
-				connection.query(`select cast(AES_DECRYPT(uniq_group, '${process.argv[5]}') as char(256)) g from memberships where uniq_user=AES_ENCRYPT('${rows[0].u}', '${process.argv[5]}');`, (er, rs, fls) => {
+				connection.query(`select ${qh.decrypt('uniq_group', 'g')} from memberships where uniq_user=${qh.encrypt(rows[0].u)};`, (er, rs, fls) => {
 					if (er) throw er
 
 					if (!rs[0]) res.sendStatus(404)
@@ -160,7 +164,7 @@ module.exports = {
 							}
 						}
 
-						connection.query(`insert into memberships (uniq_user, uniq_group) values (AES_ENCRYPT('${rows[0].u}', '${process.argv[5]}'), AES_ENCRYPT('${uniqgroup}', '${process.argv[5]}'))`, (e, results) => {
+						connection.query(`insert into memberships (uniq_user, uniq_group) values (${qh.encrypt(rows[0].u)}, ${qh.encrypt(uniqgroup)})`, (e, results) => {
 							if (e) throw e
 
 							const extra = `You have been automatically added to the group and can manage memberships from your profile.`
@@ -175,11 +179,11 @@ module.exports = {
 				let groupname = ''
 				let invitername = ''
 
-				connection.query(`select name from fgroups where unique_group_id=AES_ENCRYPT('${uniqgroup}', '${process.argv[5]}');`, (error, rows, fields) => {
+				connection.query(`select name from fgroups where unique_group_id=${qh.encrypt(uniqgroup)};`, (error, rows, fields) => {
 					if (error) throw error
 
 					groupname = rows[0].name
-					connection.query(`select firstname, lastname from users where unique_user_id=AES_ENCRYPT('${userid}', '${process.argv[5]}');`, (error, rows, fields) => {
+					connection.query(`select firstname, lastname from users where unique_user_id=${qh.encrypt(userid)};`, (error, rows, fields) => {
 						if (error) throw error
 
 						invitername = `${rows[0].firstname} ${rows[0].lastname}`
@@ -194,7 +198,7 @@ module.exports = {
 		})
 	},
 	leaveGroup: (connection, req, res) => {
-		connection.query(`delete from memberships where uniq_user=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}') and uniq_group=AES_ENCRYPT('${req.query.gid}', '${process.argv[5]}');`, (err, results) => {
+		connection.query(`delete from memberships where uniq_user=${qh.encrypt(req.query.uid)} and uniq_group=${qh.encrypt(req.query.gid)};`, (err, results) => {
 			if (err) throw err
 
 			res.sendStatus(200)
@@ -204,7 +208,7 @@ module.exports = {
 		const email = req.query.email
 		const randpass = makeCode(10)
 
-		connection.query(`update users set pass=AES_ENCRYPT('${randpass}', '${process.argv[5]}') where email='${email}';`, (err, results) => {
+		connection.query(`update users set pass=${qh.encrypt(randpass)} where email='${email}';`, (err, results) => {
 			if (err) throw err
 
 			if (results.affectedRows < 1) res.sendStatus(404)
@@ -222,7 +226,7 @@ module.exports = {
 		let bool = 0
 		if (req.query.set == 'true') bool = 1
 
-		connection.query(`update users set notifications_on='${bool}' where unique_user_id=AES_ENCRYPT('${req.query.uid}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`update users set notifications_on='${bool}' where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, rows, fields) => {
 			if (err) throw err
 
 			res.sendStatus(200)
@@ -232,10 +236,10 @@ module.exports = {
 		const userid = req.body.user
 		const newpass = req.body.newpass
 
-		connection.query(`update users set pass=AES_ENCRYPT('${newpass}', '${process.argv[5]}') where unique_user_id=AES_ENCRYPT('${userid}', '${process.argv[5]}');`, (err, result) => {
+		connection.query(`update users set pass=${qh.encrypt(newpass)} where unique_user_id=${qh.encrypt(userid)};`, (err, result) => {
 			if (err) throw err
 
-			connection.query(`select email from users where unique_user_id=AES_ENCRYPT('${userid}', '${process.argv[5]}');`, (err, rows, fields) => {
+			connection.query(`select email from users where unique_user_id=${qh.encrypt(userid)};`, (err, rows, fields) => {
 				const body = 'Just sending this email to let you know that you\'ve changed your password!'
 
 				sendEmail(rows[0].email, 'Confirmation of Password Change', body)

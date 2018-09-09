@@ -1,3 +1,5 @@
+const qh = require('./query-helper')
+
 const htmlEscape = input => {
 	let escapedString = input
 
@@ -30,7 +32,7 @@ const makeCode = (length) => {
 }
 
 const insertPost = (connection, type, params) => {
-	connection.query(`select firstname, lastname from users where unique_user_id=AES_ENCRYPT('${params.uniq_id}', '${process.argv[5]}');`, (err, rows, fields) => {
+	connection.query(`select firstname, lastname from users where unique_user_id=${qh.encrypt(params.uniq_id)};`, (err, rows, fields) => {
 		if (err) throw err
 
 		if (!rows.length) return false
@@ -46,11 +48,11 @@ const insertPost = (connection, type, params) => {
 
 		if (type == 'comment') {
 			const pid = params.parent_id
-			queryString = `insert into posts (content, parent_post, date, author, link, uniq_group, unique_post_id) values ('${content}', AES_ENCRYPT('${pid}', '${process.argv[5]}'), now(), '${author}', '${link}', AES_ENCRYPT('${group}', '${process.argv[5]}'), AES_ENCRYPT('${random}', '${process.argv[5]}'));`
+			queryString = `insert into posts (content, parent_post, date, author, link, uniq_group, unique_post_id) values ('${content}', ${qh.encrypt(pid)}, now(), '${author}', '${link}', ${qh.encrypt(group)}, ${qh.encrypt(random)});`
 		}
 
 		else if (type == 'post') {
-			queryString = `insert into posts (content, date, author, link, uniq_group, unique_post_id) values ('${content}', now(), '${author}', '${link}', AES_ENCRYPT('${group}', '${process.argv[5]}'), AES_ENCRYPT('${random}', '${process.argv[5]}'));`
+			queryString = `insert into posts (content, date, author, link, uniq_group, unique_post_id) values ('${content}', now(), '${author}', '${link}', ${qh.encrypt(group)}, ${qh.encrypt(random)});`
 		}
 
 		if (queryString.length < 1) return false
@@ -64,7 +66,7 @@ const insertPost = (connection, type, params) => {
 
 module.exports = {
 	getComments: (connection, req, res) => {
-		connection.query(`select content, author, date, link from posts where parent_post=AES_ENCRYPT('${req.query.parent_id}', '${process.argv[5]}') order by DATE(date) asc;`, (err, rows, fields) =>{
+		connection.query(`select content, author, date, link from posts where parent_post=${qh.encrypt(req.query.parent_id)} order by DATE(date) asc;`, (err, rows, fields) =>{
 			if (err) throw err
 
 			if(rows.length < 1) {
@@ -76,7 +78,7 @@ module.exports = {
 		})
 	},
 	getNumComments: (connection, req, res) => {
-		connection.query(`select cast(AES_DECRYPT('unique_post_id', '${process.argv[5]}') as char(256)) u from posts where parent_post=AES_ENCRYPT('${req.query.parent_id}', '${process.argv[5]}');`, (err, rows, fields) =>{
+		connection.query(`select ${qh.decrypt('unique_post_id', 'u')} from posts where parent_post=${qh.encrypt(req.query.parent_id)};`, (err, rows, fields) =>{
 			if (err) throw err
 
 			if(rows.length < 1) {
@@ -88,7 +90,7 @@ module.exports = {
 		})
 	},
 	getVotes: (connection, req, res) => {
-		connection.query(`select vote_id from votes where post=AES_ENCRYPT('${req.query.post_id}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select vote_id from votes where post=${qh.encrypt(req.query.post_id)};`, (err, rows, fields) => {
 			if (err) throw err
 
 			if(!rows.length) {
@@ -110,11 +112,11 @@ module.exports = {
 		else res.sendStatus(404)
 	},
 	vote: (connection, req, res) => {
-		connection.query(`select cast(AES_DECRYPT('user', '${process.argv[5]}') as char (256)) u, cast(AES_DECRYPT('post', '${process.argv[5]}') as char (256)) p from votes where user=AES_ENCRYPT('${req.body.user_id}', '${process.argv[5]}') and post=AES_ENCRYPT('${req.body.post_id}', '${process.argv[5]}');`, (err, rows, fields) => {
+		connection.query(`select ${qh.decrypt('user', 'u')}, ${qh.decrypt('post', 'p')} from votes where user=${qh.encrypt(req.body.user_id)} and post=${qh.encrypt(req.body.post_id)};`, (err, rows, fields) => {
 			if (err) throw err
 
 			if (!rows.length) {
-				connection.query(`insert into votes (user, post) values (AES_ENCRYPT('${req.body.user_id}', '${process.argv[5]}'), AES_ENCRYPT('${req.body.post_id}', '${process.argv[5]}'));`, (err, result) => {
+				connection.query(`insert into votes (user, post) values (${qh.encrypt(req.body.user_id)}, ${qh.encrypt(req.body.post_id)});`, (err, result) => {
 					if (err) throw err
 
 					res.sendStatus(200)
