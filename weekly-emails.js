@@ -22,16 +22,16 @@ const sendEmail = (recipient, subject, body) => {
 const getTopPosts = () => {
 	const queries = []
 
-	connection.query(`select group_id, name from groups;`, (err, rows, fields) => {
+	connection.query(`select cast(AES_DECRYPT(unique_group_id, '${process.argv[5]}') as char(256)) g, name from fgroups;`, (err, rows, fields) => {
 		if (err) throw err
 
 		for (let row of rows) {
 			queries.push(new Promise((resolve, reject) => {
-				connection.query(`select content, author from posts where group_id = ${row.group_id} and parent_post is NULL order by DATE(date) desc limit 3;`, (err, r, fields) => {
+				connection.query(`select content, author from posts where uniq_group = AES_ENCRYPT('${row.g}', '${process.argv[5]}') and parent_post is NULL order by DATE(date) desc limit 3;`, (err, r, fields) => {
 					if (err) throw err
 
 					const posts = []
-					for (let post of r) posts.push({'content': post.content, 'author': post.author, 'gid': row.group_id, 'gname': row.name})
+					for (let post of r) posts.push({'content': post.content, 'author': post.author, 'gid': row.g, 'gname': row.name})
 
 					resolve(posts)
 				})
@@ -49,7 +49,7 @@ const groupPostsByUsers = promises => {
 			if (!post[0]) continue
 
 			queries.push(new Promise((resolve, reject) => {
-				connection.query(`select email from users where default_group_id=${post[0].gid} and pass is not NULL and notifications_on IS TRUE;`, (err, rows, fields) => {
+				connection.query(`select email from users where default_group=AES_ENCRYPT('${post[0].gid}', '${process.argv[5]}') and pass is not NULL and notifications_on IS TRUE;`, (err, rows, fields) => {
 					if (err) throw err
 
 					const emails = []
