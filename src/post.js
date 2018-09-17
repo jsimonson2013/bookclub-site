@@ -65,6 +65,28 @@ const insertPost = (connection, type, params) => {
 }
 
 module.exports = {
+	deletePost: (connection, req, res) => {
+		connection.query(`select author from posts where unique_post_id=${qh.encrypt(req.body.post_id)};`, (err, rows, fields) => {
+			if (rows.length < 1){
+				res.sendStatus(404)
+				return
+			}
+
+			names = rows[0].author.split(" ")
+			connection.query(`select ${qh.decrypt('unique_user_id', 'u')} from users where firstname='${names[0]}' and lastname='${names[1]}';`, (err, rows, fields) => {
+				if (rows.length < 1){
+					res.sendStatus(404)
+					return
+				}
+
+				connection.query(`delete from posts where unique_post_id=${qh.encrypt(req.body.post_id)} or parent_post=${qh.encrypt(req.body.post_id)};`, (err, results) => {
+					if (err) throw err
+
+					res.sendStatus(200)
+				})
+			})
+		})
+	},
 	getComments: (connection, req, res) => {
 		connection.query(`select content, author, date, link from posts where parent_post=${qh.encrypt(req.query.parent_id)} order by DATE(date) asc;`, (err, rows, fields) =>{
 			if (err) throw err

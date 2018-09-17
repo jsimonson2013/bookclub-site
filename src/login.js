@@ -52,7 +52,7 @@ module.exports = {
 				return
 			}
 
-			connection.query(`update users set firstname='${first}', lastname='${last}', ${qh.encrypt(pass)} where email='${rows[0].email}';`, (err, results) => {
+			connection.query(`update users set firstname='${first}', lastname='${last}', pass=${qh.encrypt(pass)}, notifications_on=1 where email='${rows[0].email}';`, (err, results) => {
 				if (err) throw err
 
 				res.json({
@@ -62,7 +62,7 @@ module.exports = {
 					gname: rows[0].name
 				})
 
-				connection.query(`insert into memberships (uniq_user, uniq_group) values ${qh.encrypt(rows[0].u)}, ${qh.encrypt(rows[0].g)});`, (e, rslts) => {if (e) throw e})
+				connection.query(`insert into memberships (uniq_user, uniq_group) values (${qh.encrypt(rows[0].u)}, ${qh.encrypt(rows[0].g)});`, (e, rslts) => {if (e) throw e})
 
 				connection.query(`delete from invitees where code='${code}';`, (e, rslts) => {if (e) throw e})
 			})

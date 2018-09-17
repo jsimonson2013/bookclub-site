@@ -103,6 +103,13 @@ app.get('/create-profile', (req, res) => {
 })
 
 /**
+ * Deletes post only if requested by author.
+ */
+app.post('/delete-post', (req, res) => {
+	post.deletePost(connection, req, res)
+})
+
+/**
  * Get the default group of a user.
  *
  * @param req.query.uid id of user to query
@@ -243,6 +250,13 @@ app.get('/members', (req, res) => {
  */
 app.post('/pass', (req, res) => {
 	user.updatePass(connection, req, res)
+})
+
+/**
+ * Get posts by a user.
+ */
+app.get('/posts-by-user', (req, res) => {
+	user.getPosts(connection, req, res)
 })
 
 /**

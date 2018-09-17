@@ -19,7 +19,7 @@ const sendEmail = (recipient, subject, body) => {
 		from: 'webmaster@jacobsimonson.me',
 		to: recipient,
 		subject: subject,
-		html: `Hello,<br><br>${body}<br><br>Have a nice day!<br><br><a href="https://friendgroup.jacobsimonson.me">Link to FriendGroup.</a>`,
+		html: `Hello,<br><br>${body}<br><br>Have a nice day!<br><br><a href=${BASE_URL}>Link to FriendGroup.</a>`,
 	}, (err, reply) => {if (err) console.log(err)})
 }
 
@@ -84,6 +84,26 @@ module.exports = {
 			if (rows.length < 1) res.sendStatus(408)
 
 			res.json(rows)
+		})
+	},
+	getPosts: (connection, req, res) => {
+		connection.query(`select firstname, lastname from users where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, rows, fields) => {
+			if (err) throw err
+
+			if (rows.length < 1) {
+				res.sendStatus(404)
+				return
+			}
+
+			connection.query(`select ${qh.decrypt('unique_post_id', 'p')} from posts where author='${rows[0].firstname} ${rows[0].lastname}';`, (err, rows, fields) => {
+				if (err) throw err
+
+				if (rows.length < 1) {
+					res.sendStatus(404)
+					return
+				}
+				res.json(rows)
+			})
 		})
 	},
 	// TODO: don't select star
