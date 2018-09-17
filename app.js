@@ -129,7 +129,7 @@ app.get('/default-group', (req, res) => {
  * @return res.json[] post objects including content, post_id, link, author and date
  */
 app.get('/feed', (req, res) => {
-	connection.query(`select content, cast(AES_DECRYPT(unique_post_id, '${process.argv[5]}') as char(256)) u, link, author, date from posts where uniq_group=AES_ENCRYPT('${req.query.group_id}', '${process.argv[5]}') and parent_post is NULL and DATE(date) < DATE('${req.query.start_date}') order by DATE(date) desc limit 10;`, (err, rows, fields) => {
+	connection.query(`select content, cast(AES_DECRYPT(unique_post_id, '${process.argv[5]}') as char(256)) u, link, author, date from posts where uniq_group=AES_ENCRYPT('${req.query.group_id}', '${process.argv[5]}') and parent_post is NULL and DATE(date) < DATE('${req.query.start_date}') order by date desc limit 10;`, (err, rows, fields) => {
 		if (err) throw err
 
 		if(rows.length < 1) return
