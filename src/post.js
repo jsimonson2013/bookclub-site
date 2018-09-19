@@ -31,108 +31,89 @@ const makeCode = (length) => {
   return text
 }
 
-const insertPost = (connection, type, params) => {
+const insertPost = (connection, type, params, response) => {
 	connection.query(`select firstname, lastname from users where unique_user_id=${qh.encrypt(params.uniq_id)};`, (err, rows, fields) => {
 		if (err) throw err
 
-		if (!rows.length) return false
+		if (!rows.length) response.sendStatus(404)
 
-		const content = htmlEscape(params.content)
-		const link = htmlEscape(decodeURIComponent(params.link))
+		else {
+			const content = htmlEscape(params.content)
+			const link = htmlEscape(decodeURIComponent(params.link))
+	
+			const author = `${rows[0].firstname} ${rows[0].lastname}`
+			const group = params.group
+	
+			let queryString = ''
+			const random = makeCode(12)
+	
+			if (type == 'comment') {
+				const pid = params.parent_id
+				queryString = `insert into posts (content, parent_post, date, author, link, uniq_group, unique_post_id) values ('${content}', ${qh.encrypt(pid)}, now(), '${author}', '${link}', ${qh.encrypt(group)}, ${qh.encrypt(random)});`
+			}
+	
+			else if (type == 'post') {
+				queryString = `insert into posts (content, date, author, link, uniq_group, unique_post_id) values ('${content}', now(), '${author}', '${link}', ${qh.encrypt(group)}, ${qh.encrypt(random)});`
+			}
+	
+			if (queryString.length < 1) response.sendStatus(404)
+	
+			else {
+				connection.query(queryString, (err, result) => {
+					if (err) throw err
 
-		const author = `${rows[0].firstname} ${rows[0].lastname}`
-		const group = params.group
-
-		let queryString = ''
-		const random = makeCode(12)
-
-		if (type == 'comment') {
-			const pid = params.parent_id
-			queryString = `insert into posts (content, parent_post, date, author, link, uniq_group, unique_post_id) values ('${content}', ${qh.encrypt(pid)}, now(), '${author}', '${link}', ${qh.encrypt(group)}, ${qh.encrypt(random)});`
+					response.sendStatus(200)
+				})
+			}
 		}
-
-		else if (type == 'post') {
-			queryString = `insert into posts (content, date, author, link, uniq_group, unique_post_id) values ('${content}', now(), '${author}', '${link}', ${qh.encrypt(group)}, ${qh.encrypt(random)});`
-		}
-
-		if (queryString.length < 1) return false
-
-		connection.query(queryString, (err, result) => {
-			if (err) throw err
-		})
 	})
-	return true
+}
+
+const jsonResponse = (error, rows, response) => {
+	if (error) throw error
+
+	if (rows.length < 1) response.json({'': ''})
+
+	else response.json(rows)
 }
 
 module.exports = {
 	deletePost: (connection, req, res) => {
 		connection.query(`select author from posts where unique_post_id=${qh.encrypt(req.body.post_id)};`, (err, rows, fields) => {
-			if (rows.length < 1){
-				res.sendStatus(404)
-				return
-			}
+			if (err) throw err
 
-			names = rows[0].author.split(" ")
-			connection.query(`select ${qh.decrypt('unique_user_id', 'u')} from users where firstname='${names[0]}' and lastname='${names[1]}';`, (err, rows, fields) => {
-				if (rows.length < 1){
-					res.sendStatus(404)
-					return
-				}
+			if (rows.length < 1) res.sendStatus(404)
 
-				connection.query(`delete from posts where unique_post_id=${qh.encrypt(req.body.post_id)} or parent_post=${qh.encrypt(req.body.post_id)};`, (err, results) => {
+			else {
+				names = rows[0].author.split(" ")
+
+				connection.query(`select ${qh.decrypt('unique_user_id', 'u')} from users where firstname='${names[0]}' and lastname='${names[1]}';`, (err, rows, fields) => {
 					if (err) throw err
 
-					res.sendStatus(200)
+					if (rows.length < 1) res.sendStatus(404)
+
+					else {
+						connection.query(`delete from posts where unique_post_id=${qh.encrypt(req.body.post_id)} or parent_post=${qh.encrypt(req.body.post_id)};`, (err, results) => {
+							if (err) throw err
+
+							res.sendStatus(200)
+						})
+					}
 				})
-			})
+			}
 		})
 	},
 	getComments: (connection, req, res) => {
-		connection.query(`select content, author, date, link from posts where parent_post=${qh.encrypt(req.query.parent_id)} order by DATE(date) asc;`, (err, rows, fields) =>{
-			if (err) throw err
-
-			if(rows.length < 1) {
-				res.json({'': ''})
-				return
-			}
-
-			res.json(rows)
-		})
+		connection.query(`select content, author, date, link from posts where parent_post=${qh.encrypt(req.query.parent_id)} order by DATE(date) asc;`, (err, rows, fields) =>{ jsonResponse(err, rows, res) })
 	},
 	getNumComments: (connection, req, res) => {
-		connection.query(`select ${qh.decrypt('unique_post_id', 'u')} from posts where parent_post=${qh.encrypt(req.query.parent_id)};`, (err, rows, fields) =>{
-			if (err) throw err
-
-			if(rows.length < 1) {
-				res.json({'': ''})
-				return
-			}
-
-			res.json(rows)
-		})
+		connection.query(`select ${qh.decrypt('unique_post_id', 'u')} from posts where parent_post=${qh.encrypt(req.query.parent_id)};`, (err, rows, fields) =>{ jsonResponse(err, rows, res) })
 	},
 	getVotes: (connection, req, res) => {
-		connection.query(`select vote_id from votes where post=${qh.encrypt(req.query.post_id)};`, (err, rows, fields) => {
-			if (err) throw err
-
-			if(!rows.length) {
-				res.json({'': ''})
-				return
-			}
-
-			res.json(rows)
-		})
+		connection.query(`select vote_id from votes where post=${qh.encrypt(req.query.post_id)};`, (err, rows, fields) => { jsonResponse(err, rows, res) })
 	},
-	newPost: (connection, req, res) => {
-		if (insertPost(connection, 'post', req.body)) res.sendStatus(200)
-
-		else res.sendStatus(404)
-	},
-	newComment: (connection, req, res) => {
-		if (insertPost(connection, 'comment', req.body)) res.sendStatus(200)
-
-		else res.sendStatus(404)
-	},
+	newPost: (connection, req, res) => { insertPost(connection, 'post', req.body, res) },
+	newComment: (connection, req, res) => { insertPost(connection, 'comment', req.body, res) },
 	vote: (connection, req, res) => {
 		connection.query(`select ${qh.decrypt('user', 'u')}, ${qh.decrypt('post', 'p')} from votes where user=${qh.encrypt(req.body.user_id)} and post=${qh.encrypt(req.body.post_id)};`, (err, rows, fields) => {
 			if (err) throw err
@@ -145,7 +126,7 @@ module.exports = {
 				})
 			}
 
-			else res.sendStatus(200)
+			else res.sendStatus(404)
 		})
 	}
 }
