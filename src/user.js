@@ -40,10 +40,7 @@ module.exports = {
 			connection.query(`insert into memberships (uniq_group, uniq_user) values (${qh.encrypt(random)}, ${qh.encrypt(req.query.user)});`, (e, r) => {
 				if (e) throw e
 
-				res.json({
-					'group': random,
-					'gname': req.query.name 
-				})
+				res.json({ 'group': random, 'gname': req.query.name })
 			})
 		})	
 	},
@@ -60,21 +57,16 @@ module.exports = {
 		connection.query(`select ${qh.decrypt('default_group', 'g')} from users where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, rows, fields) => {
 			if (err) throw err
 
-			res.json({
-				'group': rows[0].g,
-			})
+			res.json({ 'group': rows[0].g })
 		})
 	},
 	getGroups: (connection, req, res) => {
 		connection.query(`select name, ${qh.decrypt('unique_group_id', 'g')} from memberships inner join users on memberships.uniq_user=users.unique_user_id inner join fgroups on memberships.uniq_group=fgroups.unique_group_id where unique_user_id=${qh.encrypt(req.query.user_id)};`, (err, rows, fields) => {
 			if (err) throw err
 
-			if (rows.length < 1) {
-				res.json({'': ''})
-				return
-			}
+			if (rows.length < 1) res.json({'': ''})
 
-			res.json(rows)
+			else res.json(rows)
 		})
 	},
 	getNotifications: (connection, req, res) => {
@@ -83,27 +75,24 @@ module.exports = {
 
 			if (rows.length < 1) res.sendStatus(408)
 
-			res.json(rows)
+			else res.json(rows)
 		})
 	},
 	getPosts: (connection, req, res) => {
 		connection.query(`select firstname, lastname from users where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, rows, fields) => {
 			if (err) throw err
 
-			if (rows.length < 1) {
-				res.sendStatus(404)
-				return
+			if (rows.length < 1) res.sendStatus(404)
+
+			else {
+				connection.query(`select ${qh.decrypt('unique_post_id', 'p')} from posts where author='${rows[0].firstname} ${rows[0].lastname}';`, (err, rows, fields) => {
+					if (err) throw err
+	
+					if (rows.length < 1) res.sendStatus(404)
+
+					else res.json(rows)
+				})
 			}
-
-			connection.query(`select ${qh.decrypt('unique_post_id', 'p')} from posts where author='${rows[0].firstname} ${rows[0].lastname}';`, (err, rows, fields) => {
-				if (err) throw err
-
-				if (rows.length < 1) {
-					res.sendStatus(404)
-					return
-				}
-				res.json(rows)
-			})
 		})
 	},
 	// TODO: don't select star
@@ -111,16 +100,16 @@ module.exports = {
 		connection.query(`select * from users where unique_user_id=${qh.encrypt(req.query.user_id)};`, (err, rows, fields) => {
 			if (err) throw err
 
-			if(rows.length < 1) return
+			if(rows.length < 1) res.sendStatus(404)
 
-			res.json(rows)
+			else res.json(rows)
 		})
 	},
 	getScore: (connection, req, res) => {
 		connection.query(`select score from users where firstname='${req.query.first}' and lastname='${req.query.last}';`, (err, rows, fields) => {
 			if (err) throw err
 
-			if(!rows.length) res.json({'score': 0})
+			if (!rows.length) res.json({'score': 0})
 
 			else res.json({'score': rows[0].score})
 		})
@@ -129,12 +118,9 @@ module.exports = {
 		connection.query(`select vote_id from votes where post in (select post from votes where post=${qh.encrypt(req.query.post_id)} and user=${qh.encrypt(req.query.user_id)});`, (err, rows, fields) => {
 			if (err) throw err
 
-			if(!rows.length) {
-				res.json({'': ''})
-				return
-			}
+			if (!rows.length) res.json({'': ''})
 
-			res.json(rows)
+			else res.json(rows)
 		})
 	},
 	incrementScore: (connection, req, res) => {
@@ -246,7 +232,7 @@ module.exports = {
 		let bool = 0
 		if (req.query.set == 'true') bool = 1
 
-		connection.query(`update users set notifications_on='${bool}' where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, rows, fields) => {
+		connection.query(`update users set notifications_on='${bool}' where unique_user_id=${qh.encrypt(req.query.uid)};`, (err, results) => {
 			if (err) throw err
 
 			res.sendStatus(200)
