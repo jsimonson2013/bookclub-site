@@ -212,6 +212,13 @@ app.get('/notifications', (req, res) => {
 })
 
 /**
+ * Sends an email to the poster when a commenter specifies that they want to notify.
+ */
+app.get('/notify-poster', (req, res) => {
+	user.notifyComment(connection, req, res)
+})
+
+/**
  * Get number of comments for a post.
  *
  * @param req.query.parent_id parent id of post to query comments for

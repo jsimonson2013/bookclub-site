@@ -210,6 +210,29 @@ module.exports = {
 			res.sendStatus(200)
 		})
 	},
+	notifyComment: (connection, req, res) => {
+		connection.query(`select author from posts where unique_post_id=${qh.encrypt(req.query.pid)};`, (err, rows, fields) => {
+			if (err) throw err
+	
+			if (rows.length < 1) res.sendStatus(404)
+	
+			else {
+				names = rows[0].author.split(" ")
+				connection.query(`select email from users where firstname='${names[0]}' and lastname='${names[1]}';`, (err, rows, fields) => {
+					if (err) throw err
+	
+					if (rows.length < 1 ) res.sendStatus(404)
+	
+					else {
+						const body = `One of your friends has commented on your post.<br><br>Go visit FriendGroup by clicking the link at the bottom of this email to view the comment and everything else going on in your friend groups.`
+
+						sendEmail(rows[0].email, 'Someone Commented on your Post!', body)
+						res.sendStatus(200)
+					}
+				})
+			}
+		})
+	},
 	resetPass: (connection, req, res) => {
 		const email = req.query.email
 		const randpass = makeCode(10)
